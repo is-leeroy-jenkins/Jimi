@@ -15,7 +15,7 @@ automation of analytical tasks.
   summarization.
 - Vector Store Integration: Embedded vector store lookups for domain-specific knowledge retrieval.
 - Web & File Search: Built-in support for semantic document and web search.
-\
+
 ## 🧭 Table of Contents
 
 - 💬 **Text generation** with Gemini chat models
