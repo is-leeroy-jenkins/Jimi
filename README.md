@@ -15,47 +15,7 @@ automation of analytical tasks.
   summarization.
 - Vector Store Integration: Embedded vector store lookups for domain-specific knowledge retrieval.
 - Web & File Search: Built-in support for semantic document and web search.
-
-![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-streamlit.gif)
-  
-## 🧠 LLMs 
-
-### ⚙️ [Leeroy](https://huggingface.co/leeroy-jankins/leeroy) 
-Leeroy is a LLM fine-tuned variant of Meta's Llama 3.2 1B Instruct, 
-quantized to Q4_K_M GGUF format for high-efficiency, low-latency inference. 
-Named after the legendary charge-forward ethos, Leeroy specializes in executing user 
-instructions with speed and accuracy — making it the ideal local LLM for 
-both professional tasks and experimental builds. With strong alignment
-capabilities, multilingual robustness, and support for complex multi-step 
-reasoning. Leeroy strikes a balance between performance, size, 
-and instruction quality. Designed for use on CPUs and modest GPUs, 
-Leeroy runs natively in llama.cpp, LM Studio, Ollama, and similar GGUF-compatible environments.  
-
-- [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://leeroy-py.streamlit.app/)
-- [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/leeroy) 
-
-### ⚙️  [Bro](https://huggingface.co/leeroy-jankins/bro) 
-Bro is a LLM fine-tuned variant of the gemma-3-1b-it transformer model, optimized for 
-enhanced contextual comprehension, instruction following, and domain-specific reasoning. 
-The fine-tuning process used supervised instruction tuning across multiple NLP domains, 
-with a focus on factual recall, multi-step reasoning, and document comprehension. 
-Built on the lightweight yet powerful Gemma 3 1B architecture, Bro provides a balance 
-between inference speed and linguistic depth — making it suitable for both production 
-deployment and academic research.
-
-- [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://bro-py.streamlit.app/)
-- [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bro)
-
-### ⚙️  [Bubba](https://huggingface.co/leeroy-jankins/bubba) 
-Bubba is a fine-tuned LLM based on OpenAI’s Chat GPT-5. This release packages the 
-fine-tuned weights (or adapters) for practical, low-latency instruction following, 
-summarization, reasoning, and light code generation. It is intended for local or
-self-hosted environments and RAG (Retrieval-Augmented Generation) stacks that
-require predictable, fast outputs.
-
-- [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://gipity.streamlit.app/)
-- [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/bubba) 
-
+\
 ## 🧭 Table of Contents
 
 - 🧰 [Overview](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-overview)
