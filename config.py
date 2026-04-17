@@ -66,10 +66,10 @@ DEFAULT_MODEL = MODELS[ 0 ]
 DB_PATH = r'stores/Data.db'
 BASE_DIR = Path(__file__).resolve().parent
 FAVICON = r'resources/images/favicon.ico'
-LOGO_PATH = r'resources/images/jimi_logo.png'
+LOGO_PATH = r'resources/images/Jimi.png'
 BLUE_DIVIDER = "<div style='height:2px;align:left;background:#0078FC;margin:6px 0 10px 0;'></div>"
 APP_TITLE = 'Jimi'
-APP_SUBTITLE = "Multi-Modal AI based on Google's Gemma-4"
+APP_SUBTITLE = "Multi-Modal AI with local model based on Google's Gemma"
 OPEN_TAG = re.compile( r'<([A-Za-z0-9_\-:.]+)>' )
 CLOSE_TAG = re.compile( r'</([A-Za-z0-9_\-:.]+)>' )
 MARKDOWN_HEADING_PATTERN = re.compile( r'^##\s+(?P<title>.+?)\s*$' )

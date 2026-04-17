@@ -18,21 +18,35 @@ automation of analytical tasks.
 \
 ## 🧭 Table of Contents
 
-- 🧰 [Overview](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-overview)
-- ✨ [Features](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-features)
-- ⚡ [Quickstart](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-quickstart)
-- 🔧 [Configuration](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-configuration)
-- 🧩 [Design & Architecture](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-design--architecture)
-- 🧪 Usage Examples
-  - 📝 [Text generation](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-text-generation)
-  - 🌐 [Web Search](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-web-search-responses) (Responses)
-  - 📄 [Document Summarization](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-summarize-a-document-file-grounded) (file-grounded)
-  - 🗂️ [File search](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#%EF%B8%8F-file-search-vector-stores) (vector stores)
-  - 👀 [Vision](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-vision-analyze-an-image): analyze an image
-  - 🖼️ Images: [generate](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-image-generation) / [edit](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#%EF%B8%8F-images-generate--edit)
-  - 🧬 [Embeddings](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-embeddings)
-  - 🔊 [Text-to-Speech](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#-text-to-speech-tts) (TTS)
-  - 🎙️ [Transcription/Translation](https://github.com/is-leeroy-jenkins/Jimi?tab=readme-ov-file#%EF%B8%8F-transcription--translation-whisper) (Whisper)
+- 💬 **Text generation** with Gemini chat models
+- 🖼️ **Image generation**
+- 🔍 **Image analysis**
+- ✏️ **Image editing**
+- 🎧 **Audio transcription**
+- 🌍 **Audio translation**
+- 🔊 **Text-to-speech**
+- 🔢 **Embedding generation**
+- 📖 **Document-grounded Q&A**
+- 📁 **File upload, listing, retrieval, summarization, and search**
+- 🏛️ **Vector store and file-search-store operations**
+- 📝 **Prompt engineering backed by SQLite**
+- 🗃️ **Data export and management utilities**
+- 🧠 **Local retrieval and prompt construction for GGUF inference paths**
+
+## 🖥️ Local GGUF Support
+
+The project is being expanded to support a local `Gemma-4-E4B-it.gguf` model for on-device use.
+
+### What the local model is for
+
+A local GGUF deployment is appropriate when you want:
+
+* private inference on your own machine
+* reduced dependency on remote APIs for text generation
+* lower-latency prompt/response loops
+* document-grounded local answering with retrieved context
+* a hybrid workflow where Gemini handles hosted multimodal tasks and Gemma handles local text work
+
 
 ## 📦 Installation
 
@@ -59,14 +73,6 @@ bash
 pip install -r requirements.txt
 ```
 
-## ⚙️ Core Classes
-
-- `Gemini`: Base class that provides shared API setup, keys, and model configurations.
-- `Chat`, `Assistant`, `Bubba`, `Bro`: Extend `AI` to provide domain-specific implementations.
-- `Schemas`, `Header`, `EndPoint`: Configuration utilities for model selection, headers, and
-  endpoints.
-- `Prompt`, `Message`, `Response`, `File`, `Reasoning`: Pydantic models for structured data
-  exchange.
 
 ## 💻 Capabilities
 
@@ -89,13 +95,13 @@ pip install -r requirements.txt
 - Numpy, Pandas
 - Tiktoken
 - Requests
-- Custom dependencies: `boogr`, `static`, `guro`
+- Custom dependencies: `jimigr`, `static`, `guro`
 
 ## 📁 File Organization
 
-- [boo](https://github.com/is-leeroy-jenkins/Jimi/blob/main/boo.py) – Main application framework
-- [schema](https://github.com/is-leeroy-jenkins/Jimi/blob/main/models.py) – Models used for structured output
-- [boogr](https://github.com/is-leeroy-jenkins/Jimi/blob/main/boogr.py) – a GUI
+- [app](https://github.com/is-leeroy-jenkins/Jimi/blob/main/app.py) – Main application framework
+- [gemini](https://github.com/is-leeroy-jenkins/Jimi/blob/main/gemini.py) – Models used for structured output
+- [jimigr](https://github.com/is-leeroy-jenkins/Jimi/blob/main/jimigr.py) – a GUI
 - [agents](https://github.com/is-leeroy-jenkins/Jimi/blob/main/guro.py) – a prompt library w/ over 100 agents.
 - [data](https://github.com/is-leeroy-jenkins/Jimi/tree/main/dbops.py) - Local persistance of embeddings for retreival augmentation base on SLQite. 
 
@@ -109,7 +115,7 @@ Set the following in your environment or `.env` file:
 
 ```
 
-## 🚀 Streamlit Application
+## 🚀 Streamlit UI
 
 Jimi includes a **first-class, single-page Streamlit application** that exposes the framework’s
 core capabilities through a unified graphical interface.
@@ -124,7 +130,7 @@ The Streamlit app is designed for:
 The application runs entirely on top of Jimi’s core APIs and does **not** modify or duplicate
 framework logic.
 
-[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://boo-py.streamlit.app/)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://jimi-py.streamlit.app/)
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/Jimi-streamlit.gif)
 
@@ -152,8 +158,10 @@ ensuring clear separation between text, document, image, and audio tasks.
 From the project root:
 
 ```bash
-pip install -r requirements.txt
-streamlit run app.py
+
+python -m pip install streamlit streamlit-extras streamlit-pdf
+python -m streamlit run app.py
+
 ```
 
 Once running, the application will be available at:
@@ -162,24 +170,18 @@ Once running, the application will be available at:
 http://localhost:8501
 ```
 
-### Notes
-
-* Some capabilities (image generation, audio transcription, translation, etc.) depend on
-  model availability and configuration.
-* If a capability is unavailable in a given environment, the UI will **degrade gracefully**
-  and display an informational message rather than failing.
 
 ## 🧰 Overview
 
-Jimi wraps the latest **Gemini Python SDK** with a thin class hierarchy:
+Jimi provides functionalty from the **Gemini Python SDK**y:
 
 - **Gemini(base)** – holds the single `Gemini` client, env config, and shared helpers.
 - **Chat / Assistant / Bro / Bubba** – opinionated text assistants using the **Responses API**.
-- **Image / LargeImage** – image generation and vision analysis.
+- **Images* – image generation and vision analysis.
 - **Embedding** – small/large/legacy embeddings with consistent return types.
 - **TTS** – text-to-speech helpers (streaming to file).
 - **Transcription / Translation** – Whisper-powered speech-to-text (+ translate).
-- **Vector Store helpers** – list files, search via `file_search` tool, merge results.
+- **Vector Stores** – list files, search via `file_search` tool, merge results.
 
 ### ✨ Features
 
@@ -193,13 +195,64 @@ Jimi wraps the latest **Gemini Python SDK** with a thin class hierarchy:
   content `type` keys, size strings, binary file handling).
 - **Uniform errors**: `GptError` + `ErrorDialog` with `module/cause/method` metadata.
 
+## 🛠️ Requirements
+
+Minimum practical requirements:
+
+| Component             | Purpose                                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Python 3.10+          | Required runtime for the application and supporting libraries                                                                 |
+| Streamlit             | Web application framework for the UI                                                                                          |
+| Google GenAI SDK      | Hosted Gemini model access and multimodal API integration                                                                     |
+| pandas                | Tabular data handling and export workflows                                                                                    |
+| numpy                 | Numerical processing and array operations                                                                                     |
+| plotly                | Interactive charts and visualizations                                                                                         |
+| PyMuPDF               | PDF parsing and text extraction                                                                                               |
+| reportlab             | PDF generation and reporting utilities                                                                                        |
+| sentence-transformers | Local embedding generation for retrieval workflows                                                                            |
+| sqlite-vec            | Vector search acceleration over SQLite-backed embeddings                                                                      |
+| tiktoken              | Token counting and prompt sizing utilities                                                                                    |
+| Pillow                | Image loading and manipulation support                                                                                        |
+| requests              | HTTP requests for supporting service calls                                                                                    |
+| `config.py`           | Project-local configuration module referenced by the app                                                                      |
+| `boogr`               | Project-local support module referenced by the app and wrappers                                                               |
+| Local GGUF runtime    | Required for local `Gemma-4-E4B-it.gguf` inference; typically a llama.cpp-compatible runtime or equivalent local serving path |
+
+## 🔐 Configuration
+
+The application reads configuration values from `config.py` and mirrors them into
+`st.session_state` and environment variables at startup.
+
+### Core environment variables
+
+```bash
+    GEMINI_API_KEY=<your_gemini_api_key>
+    GOOGLE_API_KEY=<your_google_api_key>
+    GOOGLE_CSE_ID=<your_custom_search_engine_id>
+    GOOGLE_CLOUD_PROJECT_ID=<your_gcp_project_id>
+    GOOGLE_CLOUD_LOCATION=<your_gcp_region>
+    GOOGLEMAPS_API_KEY=<your_google_maps_key>
+    GEOCODING_API_KEY=<your_geocoding_key>
+```
+
+### Notes
+
+* `GEMINI_API_KEY` is used for Gemini-hosted model access.
+* `GOOGLE_API_KEY` is used for Google services wired through the wrapper and UI.
+* Cloud project and location values are needed for the Google Cloud and vector-store-related paths.
+* Search and maps features depend on the corresponding Google credentials and service availability.
+
+For local GGUF use, configure your chosen local runtime separately and ensure the
+`Gemma-4-E4B-it.gguf` file is available to that runtime.
+
+
 ## ⚡ Quickstart
 
 1) **Install**
 
 ```python
 
-  pip install google-genai google pydantic
+  python -m pip install google-genai google pydantic
 
 ```
 
@@ -217,7 +270,7 @@ setx GOOGLE_API_KEY "sk-..."           # Windows
 
 ```python
 
-  from boo import Chat
+  from jimi import Chat
   
   chat = Chat()
   print(chat.generate_text("Say hello in one short sentence."))
@@ -229,11 +282,11 @@ setx GOOGLE_API_KEY "sk-..."           # Windows
 - **Environment**
   - `GOOGLE_API_KEY` (required)
 - **Models**
-  - Text/Responses: e.g., `gpt-4o-mini`, `gpt-4o`, `gpt-4.1-mini`
-  - Images: `dall-e-3`
+  - Text/Responses: e.g., `gemini-2.5-flash`, `gemini-3.0-flash`, 
+  - Images: `gemini-2.5-flash-image`
   - Embeddings: `text-embedding-3-small`, `text-embedding-3-large`
-  - TTS: `gpt-4o-mini-tts`, `tts-1`, `tts-1-hd`
-  - ASR/Translate: `whisper-1`
+  - TTS: `gemini-2.5-flash`,
+  - ASR/Translate: `gemini-2.5-flash`
 - **File Stores (optional)**
   - Configure your store IDs once; Jimi converts to lists when calling tools.
 
@@ -244,10 +297,6 @@ setx GOOGLE_API_KEY "sk-..."           # Windows
   - input text only
   - text + file
   - text + image
-- **No duplicate methods**: each capability has one canonical implementation per class.
-- **Type-safe Pydantic**: BaseModel subclasses do **not** override `__init__` except with
-  pass-through `def __init__(self, **data): super().__init__(**data)`.
-- **Consistent naming**: `vector_stores` (with underscore), `response_format`, `output_text`.
 
 ## 🔤 Text Generation
 
@@ -259,13 +308,13 @@ setx GOOGLE_API_KEY "sk-..."           # Windows
 
   from jimi import Chat
   
-  bro = Chat( )
-  response = bro.generate_text( "Explain how random forests handle overfitting." )
+  chat = Chat( )
+  response = jimi.generate_text( "Explain how random forests handle overfitting." )
   print( response )
 
 ```
 
-## 🎨 Image Generation (IMAGEN)
+## 🎨 Image Generation (NANO-BANANA)
 
 - Convert natural language prompts into images using IMAGEN 3.
 - Specify resolution and rendering quality options.
@@ -273,7 +322,7 @@ setx GOOGLE_API_KEY "sk-..."           # Windows
 
 ```python
 
-image_url = jimi.generate_image("A conceptual illustration of quantum computing in federal AI")
+image_url = images.generate_image("A conceptual illustration of quantum computing in federal AI")
 print(f"Image URL: {image_url}")
 
 ```
@@ -305,7 +354,7 @@ print(f"Image URL: {image_url}")
 ``` python
   
   file_path = "data/federal_strategy.pdf"
-  summary = bro.summarize_document( prompt = "Summarize key national cybersecurity strategies.",
+  summary = chat.summarize_document( prompt = "Summarize key national cybersecurity strategies.",
     path = file_path  )
     
   print( summary )
@@ -322,7 +371,7 @@ print(f"Image URL: {image_url}")
 
 ``` python
   
-  result = bro.search_files( 'Legislation related to environmental impact funding' )
+  result = files.search_files( 'Legislation related to environmental impact funding' )
   print(result)
 
 ```
@@ -333,11 +382,11 @@ print(f"Image URL: {image_url}")
 
 - **File Search**: Query vector-embedded files using `vector_store_ids`.
 
-- **Web Search**: Real-time information retrieval using GPT web search integration.
+- **Web Search**: Real-time information retrieval using Google Custom Search integration.
 
 ```python
   
-  result = bro.search_files( 'Legislation related to environmental impact funding' )
+  result = files.search_files( 'Legislation related to environmental impact funding' )
   print(result)
 
 ```
@@ -352,7 +401,7 @@ print(f"Image URL: {image_url}")
 
 ```python
   
-  insights = bro.search_web( 'Current status of the Federal AI Bill 2025' )
+  insights = text.search_web( 'Current status of the Federal AI Bill 2025' )
   print(insights)
 
 ```
@@ -367,7 +416,7 @@ print(f"Image URL: {image_url}")
 
 ```python
   
-  from boo import Prompt
+  from jimi import Chat
   p = Prompt(
       instruction="Create a budget summary",
       context="Federal Defense Budget FY25",
@@ -379,54 +428,16 @@ print(f"Image URL: {image_url}")
 
 ```
 
-### ⚙️ API Endpoint Access
-
-- Centralized access to Google's Gemini API endpoints
-
-- Includes endpoints for completions, images, speech, and files.
-
-- Facilitates debugging and manual request construction.
-
-```python
-  
-  from gemini import EndPoint
-  api = EndPoint( )
-  print( api.get_data( ) )
-
-```
-
-### 🤖 Assistant Management
-
-- Fetches and lists OpenAI assistants created or used within the system, enabling assistant
-  lifecycle management.
-
-- Chat: General multimodal chat
-
-- Assistant: Generic AI assistant
-
-- Bubba: Budget Execution Analyst
-
-- Bro: Programming & Data Science Analyst
-
-```python
-  
-  from boo import Assistant
-  assistant = Assistant()
-  assistants = assistant.get_list()
-  print("Available Assistants:", assistants)
-
-```
-
 ## 🧪 Usage Examples
 
 > The snippets below show idiomatic Jimi usage. They assume `chat = Chat()`, `img = Image()`,
-> etc., and an `OPENAI_API_KEY` is present in your environment.
+> etc., and an `GEMINI_API_KEY` is present in your environment.
 
 ## 📝 Text generation
 
 ```python
     
-    from boo import Chat
+    from jimi import Chat
 
     chat = Chat()
     out = chat.generate_text("Give me three bullet points on strict typing in Python.")
@@ -438,7 +449,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Chat
+    from jimi import Chat
 
     chat = Chat()
     prompt = "Latest trends in Retrieval Augmented Generation. 3 bullets, 1 reference each."
@@ -451,7 +462,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Chat
+    from jimi import Chat
 
     chat = Chat()
     out = chat.summarize_document(
@@ -466,7 +477,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Chat
+    from jimi import Chat
 
     chat = Chat()
     # Assumes chat.vector_stores is configured with { "Appropriations": "...", "Guidance": "..." }
@@ -479,7 +490,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Image
+    from jimi import Image
 
     img = Image()
     out = img.analyze(
@@ -494,7 +505,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Image
+    from jimi import Image
 
     img = Image()
     url = img.generate("A minimalist logo for 'Jimi' in monochrome, vector style")
@@ -509,9 +520,9 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Embedding
+    from jimi import Embeddings
 
-    emb = Embedding()
+    emb = Embeddings()
     vec = emb.create_small_embedding("Vectorize this sentence.")
     print(len(vec), "dims")
 
@@ -521,7 +532,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import TTS
+    from jimi import TTS
 
     tts = TTS()
     outfile = tts.save_audio("Hello from Jimi in a calm voice.", "out/hello.mp3")
@@ -533,7 +544,7 @@ print(f"Image URL: {image_url}")
 
 ```python
 
-    from boo import Transcription, Translation
+    from jimi import Transcription, Translation
 
     asr = Transcription()
     text = asr.transcribe("audio/meeting.m4a")
