@@ -3616,8 +3616,7 @@ if mode == 'Text':
 			prompt = str( prompt ).strip( )
 			_apply_gemini_runtime_config( )
 			
-			st.session_state.text_messages.append(
-			{
+			st.session_state.text_messages.append( {
 				'role': 'user',
 				'content': prompt,
 			} )
@@ -3806,38 +3805,24 @@ elif mode == "Images":
 					else:
 						models = list( image.model_options )
 					
-					st.selectbox(
-						label='Select Model',
-						options=models,
+					st.selectbox( label='Select Model', options=models,
 						help='REQUIRED. Gemini model used by the selected image workflow.',
-						key='image_model',
-						placeholder='Options',
-						index=None
-					)
+						key='image_model', placeholder='Options', index=None )
+					
 					image_model = st.session_state.get( 'image_model', '' )
 				
 				with llm_c3:
-					st.slider(
-						label='Top-P',
-						key='image_top_percent',
+					st.slider( label='Top-P', key='image_top_percent',
 						value=float( st.session_state.get( 'image_top_percent', 0.0 ) ),
-						min_value=0.0,
-						max_value=1.0,
-						step=0.01,
-						help=cfg.TOP_P
-					)
+						min_value=0.0, max_value=1.0, step=0.01, help=cfg.TOP_P )
+					
 					image_top_percent = st.session_state.get( 'image_top_percent', 0.0 )
 				
 				with llm_c4:
-					st.slider(
-						label='Temperature',
-						key='image_temperature',
+					st.slider( label='Temperature', key='image_temperature',
 						value=float( st.session_state.get( 'image_temperature', 0.0 ) ),
-						min_value=0.0,
-						max_value=1.0,
-						step=0.01,
-						help=cfg.TEMPERATURE
-					)
+						min_value=0.0, max_value=1.0, step=0.01, help=cfg.TEMPERATURE )
+					
 					image_temperature = st.session_state.get( 'image_temperature', 0.0 )
 				
 				if st.button( label='Reset', key='image_model_reset', width='stretch' ):
@@ -3852,27 +3837,18 @@ elif mode == "Images":
 					[ 0.25, 0.25, 0.25, 0.25 ], border=True, gap='xxsmall' )
 				
 				with resp_c1:
-					st.slider(
-						label='Max Output Tokens',
-						min_value=0,
-						max_value=100000,
-						value=int( st.session_state.get( 'image_max_tokens', 0 ) ),
-						step=1000,
-						help=cfg.MAX_OUTPUT_TOKENS,
-						key='image_max_tokens'
-					)
+					st.slider( label='Max Output Tokens', min_value=0,
+						max_value=100000, value=int( st.session_state.get( 'image_max_tokens', 0 ) ),
+						step=1000, help=cfg.MAX_OUTPUT_TOKENS, key='image_max_tokens' )
+					
 					image_max_tokens = st.session_state.get( 'image_max_tokens', 0 )
 				
 				with resp_c2:
-					st.slider(
-						label='Candidates',
-						min_value=1,
-						max_value=8,
+					st.slider( label='Candidates', min_value=1, max_value=8,
 						value=int( st.session_state.get( 'image_number', 1 ) ),
-						step=1,
-						help='Optional. Upper bound on generated image candidates.',
-						key='image_number'
-					)
+						step=1, help='Optional. Upper bound on generated image candidates.',
+						key='image_number' )
+					
 					image_number = st.session_state.get( 'image_number', 1 )
 				
 				with resp_c3:
@@ -3883,21 +3859,17 @@ elif mode == "Images":
 					else:
 						modality_options = [ 'IMAGE', 'TEXT_AND_IMAGE' ]
 					
-					st.selectbox(
-						label='Response Mode',
-						options=modality_options,
+					st.selectbox( label='Response Mode', options=modality_options,
 						key='image_modality',
 						help='Gemini response modalities used by the Image wrapper.',
-						index=None,
-						placeholder='Select Modality'
-					)
+						index=None, placeholder='Select Modality' )
+					
 					image_modality = st.session_state.get( 'image_modality', '' )
 				
 				with resp_c4:
 					mime_enabled = image_mode in [ 'Generation', 'Editing' ]
 					if mime_enabled:
-						st.selectbox(
-							label='Output MIME Type',
+						st.selectbox( label='Output MIME Type',
 							options=image.mime_options,
 							key='image_mime_type',
 							help='Optional. Output image MIME type when the model returns an image.',

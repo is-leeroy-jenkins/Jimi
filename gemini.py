@@ -44,7 +44,7 @@
 from google.genai.file_search_stores import FileSearchStores
 import config as cfg
 import base64
-from boogr import ErrorDialog, Error
+from boogr import Error
 import json
 import os
 import requests
