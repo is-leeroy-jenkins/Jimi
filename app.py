@@ -3182,9 +3182,7 @@ with st.sidebar:
 	
 	# -----API KEY Expander------------------------------
 	with st.expander( label='Keys:', icon='🔑', expanded=False ):
-		google_key = st.text_input(
-			'Google API Key',
-			type='password',
+		google_key = st.text_input( 'Google API Key', type='password',
 			value=st.session_state.google_api_key or '',
 			help='Overrides GOOGLE_API_KEY from config.py for this session only.' )
 	
@@ -3192,9 +3190,7 @@ with st.sidebar:
 			st.session_state.google_api_key = google_key
 			os.environ[ 'GOOGLE_API_KEY' ] = google_key
 		
-		gemini_key = st.text_input(
-			'Gemini API Key',
-			type='password',
+		gemini_key = st.text_input( 'Gemini API Key', type='password',
 			value=st.session_state.gemini_api_key or '',
 			help='Overrides GEMINI_API_KEY from config.py for this session only.' )
 		
@@ -3212,9 +3208,7 @@ with st.sidebar:
 			st.session_state.googlemaps_api_key = googlemaps_key
 			os.environ[ 'GOOGLEMAPS_API_KEY' ] = googlemaps_key
 		
-		google_cse_id = st.text_input(
-			'Google Custom Search ID',
-			type='password',
+		google_cse_id = st.text_input( 'Google Custom Search ID', type='password',
 			value=st.session_state.google_cse_id or '',
 			help='Overrides GOOGLE_CSE_ID from config.py for this session only.' )
 		
@@ -3222,9 +3216,7 @@ with st.sidebar:
 			st.session_state.google_cse_id = google_cse_id
 			os.environ[ 'GOOGLE_CSE_ID' ] = google_cse_id
 		
-		google_cloud_project_id = st.text_input(
-			'Google Cloud Project ID',
-			type='password',
+		google_cloud_project_id = st.text_input( 'Google Cloud Project ID', type='password',
 			value=st.session_state.google_cloud_project_id or '',
 			help='Overrides GOOGLE_CLOUD_PROJECT_ID from config.py for this session only.' )
 		
@@ -3232,9 +3224,7 @@ with st.sidebar:
 			st.session_state.google_cloud_project_id = google_cloud_project_id
 			os.environ[ 'GOOGLE_CLOUD_PROJECT_ID' ] = google_cloud_project_id
 		
-		google_cloud_location = st.text_input(
-			'Google Cloud Location',
-			type='password',
+		google_cloud_location = st.text_input( 'Google Cloud Location', type='password',
 			value=st.session_state.google_cloud_location or '',
 			help='Overrides GOOGLE_CLOUD_LOCATION from config.py for this session only.' )
 		
