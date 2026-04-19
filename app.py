@@ -41,7 +41,6 @@
   </summary>
   ******************************************************************************************
 '''
-
 from __future__ import annotations
 
 import base64
@@ -51,23 +50,36 @@ import sqlite3
 import time
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-import fitz
 import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from llama_cpp import Llama
-from sentence_transformers import SentenceTransformer
 import config as cfg
 
 # ==============================================================================
-# Model Path Resolution
+# Deferred Dependency Resolution
 # ==============================================================================
 MODEL_PATH_OBJ = Path( cfg.MODEL_PATH )
 
-if not MODEL_PATH_OBJ.exists( ):
-	st.error( f'Model not found at {cfg.MODEL_PATH}' )
-	st.stop( )
+def local_model_available( ) -> bool:
+	"""
+		Purpose:
+		--------
+		Determine whether the configured local GGUF model exists.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		bool
+			True when the configured model file exists; otherwise False.
+	"""
+	try:
+		return MODEL_PATH_OBJ.exists( )
+	except Exception:
+		return False
 
 # ==============================================================================
 # SESSION STATE INITIALIZATION
@@ -592,6 +604,8 @@ def build_prompt( user_input: str ) -> str:
 		str
 			A fully constructed prompt in chat template format.
 	"""
+	global embedder
+	
 	system_instructions = st.session_state.get( 'system_instructions', '' )
 	use_semantic = jimil( st.session_state.get( 'use_semantic', False ) )
 	basic_docs = st.session_state.get( 'basic_docs', [ ] )
@@ -604,14 +618,18 @@ def build_prompt( user_input: str ) -> str:
 	prompt = f"<|system|>\n{system_instructions}\n</s>\n"
 	
 	if use_semantic:
-		with sqlite3.connect( cfg.DB_PATH ) as conn:
-			rows = conn.execute( "SELECT chunk, vector FROM embeddings" ).fetchall( )
+		if embedder is None:
+			embedder = load_embedder( )
 		
-		if rows:
-			q = embedder.encode( [ user_input ] )[ 0 ]
-			scored = [ (c, cosine_similarity( q, np.frombuffer( v ) )) for c, v in rows ]
-			for c, _ in sorted( scored, key=lambda x: x[ 1 ], reverse=True )[ :top_k_value ]:
-				prompt += f"<|system|>\n{c}\n</s>\n"
+		if embedder is not None:
+			with sqlite3.connect( cfg.DB_PATH ) as conn:
+				rows = conn.execute( "SELECT chunk, vector FROM embeddings" ).fetchall( )
+			
+			if rows:
+				q = embedder.encode( [ user_input ] )[ 0 ]
+				scored = [ (c, cosine_similarity( q, np.frombuffer( v ) )) for c, v in rows ]
+				for c, _ in sorted( scored, key=lambda x: x[ 1 ], reverse=True )[ :top_k_value ]:
+					prompt += f"<|system|>\n{c}\n</s>\n"
 	
 	for d in basic_docs[ :6 ]:
 		prompt += f"<|system|>\n{d}\n</s>\n"
@@ -658,14 +676,23 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 		stream : jimil
 			When True, stream tokens to the provided Streamlit placeholder.
 		output : Any | None
-			A Streamlit placeholder (e.g., st.empty()) used for streaming output.
+			A Streamlit placeholder used for streaming output.
 
 		Returns:
 		--------
 		str
 			The assistant response text.
 	"""
+	global llm
+	
 	if user_input is None:
+		return ''
+	
+	if llm is None:
+		llm = load_llm( cfg.DEFAULT_CTX, cfg.CORES )
+	
+	if llm is None:
+		st.error( f'Local model unavailable at {cfg.MODEL_PATH}' )
 		return ''
 	
 	prompt = build_prompt( user_input )
@@ -1195,7 +1222,7 @@ def create_custom_table( table_name: str, columns: list ) -> None:
 		conn.execute( sql )
 		conn.commit( )
 
-def is_safe_query( query: str ) -> jimil:
+def is_safe_query( query: str ) -> bool:
 	"""
 	
 		Purpose:
@@ -1489,7 +1516,7 @@ def extract_text( file_bytes: bytes ) -> str:
 	
 		Purpose:
 		--------
-		Extracts text from a PDF byte stream using PyMuPDF.
+		Extracts text from a PDF byte stream using PyMuPDF when available.
 	
 		Parameters:
 		-----------
@@ -1505,6 +1532,8 @@ def extract_text( file_bytes: bytes ) -> str:
 		return ''
 	
 	try:
+		import fitz
+		
 		doc = fitz.open( stream=file_bytes, filetype='pdf' )
 		parts: List[ str ] = [ ]
 		for page in doc:
@@ -1513,7 +1542,7 @@ def extract_text( file_bytes: bytes ) -> str:
 	except Exception:
 		return ''
 
-def load_sqlite_vec( conn: sqlite3.Connection ) -> jimil:
+def load_sqlite_vec( conn: sqlite3.Connection ) -> bool:
 	'''
 		
 		Purpose:
@@ -1538,7 +1567,7 @@ def load_sqlite_vec( conn: sqlite3.Connection ) -> jimil:
 	except Exception:
 		return False
 
-def ensure_schema( dim: int ) -> jimil:
+def ensure_schema( dim: int ) -> bool:
 	'''
 	
 		Purpose:
@@ -1579,7 +1608,7 @@ def ensure_schema( dim: int ) -> jimil:
 	finally:
 		conn.close( )
 
-def rebuild_index( embedder: SentenceTransformer ) -> None:
+def rebuild_index( embedder: Any | None ) -> None:
 	'''
 		
 		Purpose:
@@ -1589,13 +1618,19 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 		Parameters:
 		-----------
 		embedder:
-			The SentenceTransformer used to generate embeddings.
+			The sentence embedding model used to generate embeddings.
 	
 		Returns:
 		--------
 		None
 		
 	'''
+	if embedder is None:
+		st.session_state[ 'docqna_vec_ready' ] = False
+		st.session_state[ 'docqna_chunk_count' ] = 0
+		st.session_state[ 'docqna_fallback_rows' ] = [ ]
+		return
+	
 	active_docs: List[ str ] = st.session_state.get( 'active_docs', [ ] )
 	doc_bytes: Dict[ str, bytes ] = st.session_state.get( 'doc_bytes', { } )
 	
@@ -1661,11 +1696,12 @@ def rebuild_index( embedder: SentenceTransformer ) -> None:
 		
 		if not vec_ready:
 			st.session_state[ 'docqna_fallback_rows' ] = fallback_rows
-	
+		else:
+			st.session_state[ 'docqna_fallback_rows' ] = [ ]
 	except Exception:
 		st.session_state[ 'docqna_vec_ready' ] = False
-		st.session_state[ 'docqna_fallback_rows' ] = [ ]
 		st.session_state[ 'docqna_chunk_count' ] = 0
+		st.session_state[ 'docqna_fallback_rows' ] = [ ]
 	finally:
 		conn.close( )
 
@@ -1784,20 +1820,69 @@ def build_document_user_input( user_query: str, k: int = 6 ) -> str:
 # -------------- LLM  UTILITIES -------------------
 
 @st.cache_resource
-def load_llm( ctx: int, threads: int ) -> Llama:
-	return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=ctx, n_threads=threads, n_batch=512,
-		verbose=False )
+def load_llm( ctx: int, threads: int ) -> Any | None:
+	"""
+		Purpose:
+		--------
+		Lazily load the local llama.cpp model if its dependency and model file are available.
+
+		Parameters:
+		-----------
+		ctx : int
+			Context window size.
+		threads : int
+			CPU thread count.
+
+		Returns:
+		--------
+		Any | None
+			A llama_cpp.Llama instance when available; otherwise None.
+	"""
+	try:
+		if not local_model_available( ):
+			return None
+		
+		from llama_cpp import Llama
+		
+		return Llama(
+			model_path=str( cfg.MODEL_PATH ),
+			n_ctx=ctx,
+			n_threads=threads,
+			n_batch=512,
+			verbose=False
+		)
+	except Exception:
+		return None
 
 @st.cache_resource
-def load_embedder( ) -> SentenceTransformer:
-	return SentenceTransformer( 'all-MiniLM-L6-v2' )
+def load_embedder( ) -> Any | None:
+	"""
+		Purpose:
+		--------
+		Lazily load the sentence embedding model when the dependency is available.
+
+		Parameters:
+		-----------
+		None
+
+		Returns:
+		--------
+		Any | None
+			A sentence-transformer model instance when available; otherwise None.
+	"""
+	try:
+		from sentence_transformers import SentenceTransformer
+		
+		return SentenceTransformer( 'all-MiniLM-L6-v2' )
+	except Exception:
+		return None
 
 # ==============================================================================
 # Init
 # ==============================================================================
 initialize_database( )
-llm = load_llm( cfg.DEFAULT_CTX, cfg.CORES )
-embedder = load_embedder( )
+llm = None
+embedder = None
 
 if not isinstance( st.session_state.get( 'messages' ), list ):
 	st.session_state[ 'messages' ] = [ ]

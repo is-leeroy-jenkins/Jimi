@@ -53,3 +53,4 @@ Mkfile.old
 dkms.conf
 
 !/llm/jimi-4-E4B-it-Q4_K_M.gguf
+llm/jimi-4-E4B-it-Q4_K_M.gguf
