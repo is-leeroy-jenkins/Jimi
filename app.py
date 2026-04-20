@@ -4525,7 +4525,7 @@ elif mode == 'Prompt Engineering':
 						'ID': row[ 5 ],
 				}
 				
-				st.session_state[ 'pe_category' ] = infer_prompt_category( prompt_row )
+				st.session_state[ 'pe_cat' ] = infer_prompt_category( prompt_row )
 		
 		# ------------------------------------------------------------------
 		# Filters
@@ -4539,7 +4539,7 @@ elif mode == 'Prompt Engineering':
 			st.selectbox(
 				'Category',
 				get_prompt_categories( ),
-				key='pe_category'
+				key='pe_category_selection'
 			)
 		
 		with c3:
@@ -4617,7 +4617,7 @@ elif mode == 'Prompt Engineering':
 		# ------------------------------------------------------------------
 		table_rows: List[ Dict[ str, Any ] ] = [ ]
 		selected_category = str(
-			st.session_state.get( 'pe_category', 'General Chat' ) or 'General Chat' )
+			st.session_state.get( 'pe_category_table', 'General Chat' ) or 'General Chat' )
 		
 		for r in rows:
 			prompt_row = {
@@ -4666,8 +4666,8 @@ elif mode == 'Prompt Engineering':
 					apply_prompt_to_text_generation( st.session_state.pe_text )
 					apply_prompt_metadata_to_shared_state(
 						category=selected[ 0 ].get( 'Category', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						task_type=st.session_state.get( 'pe_task_type_cascade', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format_chat', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' )
 					)
 		
@@ -4704,9 +4704,9 @@ elif mode == 'Prompt Engineering':
 				if st.button( 'Apply to Text Generation', width='stretch' ):
 					apply_prompt_to_text_generation( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'pe_category', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						category=st.session_state.get( 'pe_category_chat', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type_text', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format_meta', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' )
 					)
 					st.success( 'Applied to shared Text Generation settings.' )
@@ -4715,9 +4715,9 @@ elif mode == 'Prompt Engineering':
 				if st.button( 'Apply to Document Q&A', width='stretch' ):
 					apply_prompt_to_document_qna( st.session_state.get( 'pe_text', '' ) )
 					apply_prompt_metadata_to_shared_state(
-						category=st.session_state.get( 'pe_category', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+						category=st.session_state.get( 'pe_category_prompt', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type_docqna', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format_chat', 'Markdown' ),
 						language=st.session_state.get( 'pe_language', 'English' )
 					)
 					st.success( 'Applied to shared Document Q&A settings.' )
@@ -4738,10 +4738,10 @@ elif mode == 'Prompt Engineering':
 			with act_c4:
 				if st.button( 'Generate Starter Prompt', width='stretch' ):
 					st.session_state.pe_text = build_starter_prompt_template(
-						category=st.session_state.get( 'pe_category', 'General Chat' ),
-						task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-						response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
-						language=st.session_state.get( 'pe_language', 'English' )
+						category=st.session_state.get( '_c4', 'General Chat' ),
+						task_type=st.session_state.get( 'pe_task_type_starter', 'Chat' ),
+						response_format=st.session_state.get( 'pe_response_format_starter', 'Markdown' ),
+						language=st.session_state.get( 'pe_language_starter', 'English' )
 					)
 					st.success( 'Starter prompt generated into the edit surface.' )
 		
@@ -4755,20 +4755,20 @@ elif mode == 'Prompt Engineering':
 				st.selectbox(
 					'Task Type',
 					get_prompt_task_types( ),
-					key='pe_task_type'
+					key='pe_task_type_selection'
 				)
 			
 			with gen_c2:
 				st.selectbox(
 					'Response Format',
 					[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-					key='pe_response_format'
+					key='pe_response_format_selection'
 				)
 			
 			with gen_c3:
 				st.text_input(
 					'Language',
-					key='pe_language'
+					key='pe_language_selection'
 				)
 			
 			with gen_c4:
@@ -4794,9 +4794,9 @@ elif mode == 'Prompt Engineering':
 					goal=st.session_state.get( 'pe_generator_goal', '' ),
 					constraints=st.session_state.get( 'pe_generator_constraints', '' ),
 					style=st.session_state.get( 'pe_generator_style', 'Practical' ),
-					category=st.session_state.get( 'pe_category', 'General Chat' ),
-					task_type=st.session_state.get( 'pe_task_type', 'Chat' ),
-					response_format=st.session_state.get( 'pe_response_format', 'Markdown' ),
+					category=st.session_state.get( 'pe_category_template', 'General Chat' ),
+					task_type=st.session_state.get( 'pe_task_type_goal', 'Chat' ),
+					response_format=st.session_state.get( 'pe_response_format_draft', 'Markdown' ),
 					language=st.session_state.get( 'pe_language', 'English' )
 				)
 				st.session_state[ 'pe_generated_template' ] = draft
@@ -4827,21 +4827,21 @@ elif mode == 'Prompt Engineering':
 				st.selectbox(
 					'Category',
 					get_prompt_categories( ),
-					key='pe_category'
+					key='pe_category_meta'
 				)
 			
 			with meta_c3:
 				st.selectbox(
 					'Task Type',
 					get_prompt_task_types( ),
-					key='pe_task_type'
+					key='pe_task_type_c3'
 				)
 			
 			with meta_c4:
 				st.selectbox(
 					'Response Format',
 					[ 'Plain Text', 'Markdown', 'Bullet Summary', 'JSON' ],
-					key='pe_response_format'
+					key='pe_response_format_meta'
 				)
 			
 			st.text_input( 'Caption', key='pe_caption' )
