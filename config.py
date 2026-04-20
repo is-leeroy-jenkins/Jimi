@@ -53,8 +53,6 @@ from pathlib import Path
 OUTPUT_FILE_NAME = "jimi.wav"
 SAMPLE_RATE = 48000
 MODEL_PATH = r'llm/jimi-4-E4B-it-Q4_K_M.gguf'
-MODELS = [ 'gemini-2.5-flash', 'gemini-2.5-flash-image', 'gemini-3-flash', ]
-DEFAULT_MODEL = MODELS[ 0 ]
 DB_PATH = r'stores/Data.db'
 BASE_DIR = Path(__file__).resolve().parent
 FAVICON = r'resources/images/favicon.ico'
@@ -70,7 +68,6 @@ AUDIO_TEST_FILE = r'resources/audio/conditions.mp3'
 ANALYST = '❓'
 JENI = '🧠'
 DEFAULT_CTX = 4096
-ENABLE_LOCAL_LLM = False
 CORES = multiprocessing.cpu_count( )
 
 # ---------------- GEMMA CONFIG ------------------
