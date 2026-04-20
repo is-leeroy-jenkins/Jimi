@@ -18,7 +18,9 @@ automation of analytical tasks.
 
 ## Demo
 
-![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
+![](https://github.com/is-leeroy-jenkins/Jimi/tree/main/resources/images/Jimi-functionality.gif)
+
+
 ## 🧭 Table of Contents
 
 - 💬 **Text generation** with Gemini chat models
