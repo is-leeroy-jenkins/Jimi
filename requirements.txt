@@ -30,4 +30,3 @@ pyyaml==6.0.1
 streamlit
 streamlit-extras
 streamlit-pdf
-llama-cpp-python

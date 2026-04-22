@@ -75,9 +75,15 @@ venv\Scripts\activate
 
 ```
 bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
+#### 4. Install llama-cpp-python
+
+```
+bash
+python -m pip install llama-cpp-python
+```
 
 ## 💻 Capabilities
 
@@ -106,9 +112,7 @@ pip install -r requirements.txt
 
 - [app](https://github.com/is-leeroy-jenkins/Jimi/blob/main/app.py) – Main application framework
 - [gemini](https://github.com/is-leeroy-jenkins/Jimi/blob/main/gemini.py) – Models used for structured output
-- [jimigr](https://github.com/is-leeroy-jenkins/Jimi/blob/main/jimigr.py) – a GUI
-- [agents](https://github.com/is-leeroy-jenkins/Jimi/blob/main/guro.py) – a prompt library w/ over 100 agents.
-- [data](https://github.com/is-leeroy-jenkins/Jimi/tree/main/dbops.py) - Local persistance of embeddings for retreival augmentation base on SLQite. 
+- [agents](https://github.com/is-leeroy-jenkins/Jimi/blob/main/agents.py) – a prompt library w/ over 100 agents. 
 
 ## 🔐 Environment Variables
 
