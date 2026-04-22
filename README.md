@@ -88,7 +88,7 @@ venv\Scripts\activate
 ## 🛠️ Install local LLM
 
 - The local llm for jimi (based on Gemma-4) is on Huggingface and can be downloaded below
-- Jimi expects the local llm to be at the location indicated by MODEL_PATH in config.py
+- Jimi expects the local llm to be at the location indicated by MODEL_PATH in [config.py](https://github.com/is-leeroy-jenkins/Jimi/blob/main/config.py#L55)
 
 #### 5. Install Jimi
 
