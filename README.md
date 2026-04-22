@@ -105,10 +105,12 @@ venv\Scripts\activate
 - Tiktoken
 - Requests
 
-## 🛠️ Install local LLM 
+## 🛠️ Install local LLM
+
  - The local llm for jimi (based on Gemma-4) is on Huggingface and can be downloaded below
  - Jimi expects the local llm to be at the location indicated by MODEL_PATH in config.py
-- [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
+
+[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
 
 ## 📁 File Organization
 
