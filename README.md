@@ -46,6 +46,8 @@ The project is being expanded to support a local `Gemma-4-E4B-it.gguf` model for
 
 A local GGUF deployment is appropriate when you want:
 
+[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
+
 * private inference on your own machine
 * reduced dependency on remote APIs for text generation
 * lower-latency prompt/response loops
