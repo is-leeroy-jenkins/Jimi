@@ -73,16 +73,14 @@ venv\Scripts\activate
 
 #### 3. Install Dependencies
 
-```
-bash
-python -m pip install -r requirements.txt
+```bash
+    python -m pip install -r requirements.txt
 ```
 
 #### 4. Install llama-cpp-python
 
-```
-bash
-python -m pip install llama-cpp-python
+```bash
+    python -m pip install llama-cpp-python
 ```
 
 ## 💻 Capabilities
@@ -106,7 +104,11 @@ python -m pip install llama-cpp-python
 - Numpy, Pandas
 - Tiktoken
 - Requests
-- Custom dependencies: `jimigr`, `static`, `guro`
+
+## 🛠️ Install local LLM 
+ - The local llm for jimi (based on Gemma-4) is on Huggingface and can be downloaded below
+ - Jimi expects the local llm to be at the location indicated by MODEL_PATH in config.py
+- [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
 
 ## 📁 File Organization
 
