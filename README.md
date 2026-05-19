@@ -112,7 +112,7 @@ venv\Scripts\activate
 ## 🛠️ Requirements
 
 - Python 3.10+
-- OpenAI Python SDK
+- Google genai Python SDK
 - Pydantic
 - Numpy, Pandas
 - Tiktoken
