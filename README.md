@@ -39,11 +39,7 @@ automation of analytical tasks.
 - 🧠 **Local retrieval and prompt construction for GGUF inference paths**
 
 
-## 🔑 API KEY SETUP
 
-- [OpenAI API Key](https://github.com/is-leeroy-jenkins/Buddy/blob/main/resources/setup/openai.md)
-- [Grok API Key](https://github.com/is-leeroy-jenkins/Buddy/blob/main/resources/setup/xai.md)
-- [Gemini API Key](https://github.com/is-leeroy-jenkins/Buddy/blob/main/resources/setup/gemini.md)
 
 
 ## 🖥️ Local GGUF Support
