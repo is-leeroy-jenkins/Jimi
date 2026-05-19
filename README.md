@@ -214,28 +214,7 @@ Jimi provides functionalty from the **Gemini Python SDK**y:
   content `type` keys, size strings, binary file handling).
 - **Uniform errors**: `GptError` + `ErrorDialog` with `module/cause/method` metadata.
 
-## 🛠️ Requirements
 
-Minimum practical requirements:
-
-| Component             | Purpose                                                                                                                       |
-| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Python 3.10+          | Required runtime for the application and supporting libraries                                                                 |
-| Streamlit             | Web application framework for the UI                                                                                          |
-| Google GenAI SDK      | Hosted Gemini model access and multimodal API integration                                                                     |
-| pandas                | Tabular data handling and export workflows                                                                                    |
-| numpy                 | Numerical processing and array operations                                                                                     |
-| plotly                | Interactive charts and visualizations                                                                                         |
-| PyMuPDF               | PDF parsing and text extraction                                                                                               |
-| reportlab             | PDF generation and reporting utilities                                                                                        |
-| sentence-transformers | Local embedding generation for retrieval workflows                                                                            |
-| sqlite-vec            | Vector search acceleration over SQLite-backed embeddings                                                                      |
-| tiktoken              | Token counting and prompt sizing utilities                                                                                    |
-| Pillow                | Image loading and manipulation support                                                                                        |
-| requests              | HTTP requests for supporting service calls                                                                                    |
-| `config.py`           | Project-local configuration module referenced by the app                                                                      |
-| `boogr`               | Project-local support module referenced by the app and wrappers                                                               |
-| Local GGUF runtime    | Required for local `Gemma-4-E4B-it.gguf` inference; typically a llama.cpp-compatible runtime or equivalent local serving path |
 
 ## 🔐 Configuration
 
@@ -575,6 +554,28 @@ print(f"Image URL: {image_url}")
 
 ```
 
+## 🛠️ Requirements
+
+Minimum practical requirements:
+
+| Component             | Purpose                                                                                                                       |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Python 3.10+          | Required runtime for the application and supporting libraries                                                                 |
+| Streamlit             | Web application framework for the UI                                                                                          |
+| Google GenAI SDK      | Hosted Gemini model access and multimodal API integration                                                                     |
+| pandas                | Tabular data handling and export workflows                                                                                    |
+| numpy                 | Numerical processing and array operations                                                                                     |
+| plotly                | Interactive charts and visualizations                                                                                         |
+| PyMuPDF               | PDF parsing and text extraction                                                                                               |
+| reportlab             | PDF generation and reporting utilities                                                                                        |
+| sentence-transformers | Local embedding generation for retrieval workflows                                                                            |
+| sqlite-vec            | Vector search acceleration over SQLite-backed embeddings                                                                      |
+| tiktoken              | Token counting and prompt sizing utilities                                                                                    |
+| Pillow                | Image loading and manipulation support                                                                                        |
+| requests              | HTTP requests for supporting service calls                                                                                    |
+| `config.py`           | Project-local configuration module referenced by the app                                                                      |
+| `boogr`               | Project-local support module referenced by the app and wrappers                                                               |
+| Local GGUF runtime    | Required for local `Gemma-4-E4B-it.gguf` inference; typically a llama.cpp-compatible runtime or equivalent local serving path |
 
 
 ## 📝 License
