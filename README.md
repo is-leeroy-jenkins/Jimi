@@ -38,6 +38,14 @@ automation of analytical tasks.
 - 🗃️ **Data export and management utilities**
 - 🧠 **Local retrieval and prompt construction for GGUF inference paths**
 
+
+## 🔑 API KEY SETUP
+
+[OpenAI API Key](https://github.com/is-leeroy-jenkins/Buddy/blob/main/resources/setup/openai.md)
+[Grok API Key](https://github.com/is-leeroy-jenkins/Buddy/blob/main/resources/setup/xai.md)
+[Gemini API Key](https://github.com/is-leeroy-jenkins/Buddy/blob/main/resources/setup/gemini.md)
+
+
 ## 🖥️ Local GGUF Support
 
 The project is being expanded to support a local `Gemma-4-E4B-it.gguf` model for on-device use.
