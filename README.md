@@ -17,7 +17,7 @@ automation of analytical tasks.
 
 ## 🎥 Demo
 
-![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
+![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/jimi-demo.gif)
 
 
 ## 🧱 Databricks
@@ -35,8 +35,6 @@ automation of analytical tasks.
 ## 🚀 Streamlit UI
 
 [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://jimi-py.streamlit.app/)
-
-![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/Jimi-streamlit.gif)
 * Interactive analysis
 * Multimodal experimentation
 * Demonstrations and internal tools
