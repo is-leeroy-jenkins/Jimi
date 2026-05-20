@@ -8,7 +8,6 @@ and is designed with extensibility and federal applications in mind, it enables 
 automation of analytical tasks.
 
 ## 🛠️ Features
-
 - Unified AI Framework: Integrates OpenAI APIs for text, image, audio, file analysis, transcription,
   and translation.
 - Multimodal Capabilities: Supports text generation, image creation, image analysis, and document
@@ -23,15 +22,12 @@ automation of analytical tasks.
 
 ## 🧱 Databricks
 [![Jimi](https://img.shields.io/badge/Databricks-Jimi-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
-
 - A data engineering, analytics, and artificial intelligence collaborative workspace
 - Codebase
 
 ## 🧠 Custom LLM
 
 [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
-
-
 - The local llm for jimi (based on Gemma-4) is on Huggingface and can be downloaded below
 - Jimi expects the local llm to be at the location indicated by `MODEL_PATH` in [config.py](https://github.com/is-leeroy-jenkins/Jimi/blob/main/config.py#L55)
 
@@ -41,7 +37,6 @@ automation of analytical tasks.
 [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://jimi-py.streamlit.app/)
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/Jimi-streamlit.gif)
-
 * Interactive analysis
 * Multimodal experimentation
 * Demonstrations and internal tools
