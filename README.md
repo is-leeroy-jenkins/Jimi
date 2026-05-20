@@ -21,6 +21,12 @@ automation of analytical tasks.
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
 
+## 🧱 Databricks
+[![Jimi](https://img.shields.io/badge/Databricks-Jimi-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
+
+- A data engineering, analytics, and artificial intelligence collaborative workspace
+- Codebase
+
 ## 🧭 Table of Contents
 
 - 💬 **Text generation** with Gemini chat models
