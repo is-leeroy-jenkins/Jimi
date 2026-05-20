@@ -27,6 +27,27 @@ automation of analytical tasks.
 - A data engineering, analytics, and artificial intelligence collaborative workspace
 - Codebase
 
+## 🧠 Custom LLM
+
+[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
+
+
+- The local llm for jimi (based on Gemma-4) is on Huggingface and can be downloaded below
+- Jimi expects the local llm to be at the location indicated by `MODEL_PATH` in [config.py](https://github.com/is-leeroy-jenkins/Jimi/blob/main/config.py#L55)
+
+
+## 🚀 Streamlit UI
+
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://jimi-py.streamlit.app/)
+
+![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/Jimi-streamlit.gif)
+
+* Interactive analysis
+* Multimodal experimentation
+* Demonstrations and internal tools
+* Rapid prototyping on top of Jimi’s agents and models
+
+
 ## 🧭 Table of Contents
 
 - 💬 **Text generation** with Gemini chat models
@@ -46,23 +67,6 @@ automation of analytical tasks.
 
 
 
-
-
-## 🖥️ Local GGUF Support
-
-The project is being expanded to support a local `Gemma-4-E4B-it.gguf` model for on-device use.
-
-### What the local model is for
-
-A local GGUF deployment is appropriate when you want:
-
-[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
-
-* private inference on your own machine
-* reduced dependency on remote APIs for text generation
-* lower-latency prompt/response loops
-* document-grounded local answering with retrieved context
-* a hybrid workflow where Gemini handles hosted multimodal tasks and Gemma handles local text work
 
 
 ## 📦 Installation
@@ -95,12 +99,6 @@ venv\Scripts\activate
     python -m pip install llama-cpp-python
 ```
 
-## 🛠️ Install local LLM
-
-- The local llm for jimi (based on Gemma-4) is on Huggingface and can be downloaded below
-- Jimi expects the local llm to be at the location indicated by `MODEL_PATH` in [config.py](https://github.com/is-leeroy-jenkins/Jimi/blob/main/config.py#L55)
-
-[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
 
 ## 💻 Capabilities
 
@@ -140,24 +138,6 @@ Set the following in your environment or `.env` file:
 
 ```
 
-## 🚀 Streamlit UI
-
-Jimi includes a **first-class, single-page Streamlit application** that exposes the framework’s
-core capabilities through a unified graphical interface.
-
-The Streamlit app is designed for:
-
-* Interactive analysis
-* Multimodal experimentation
-* Demonstrations and internal tools
-* Rapid prototyping on top of Jimi’s agents and models
-
-The application runs entirely on top of Jimi’s core APIs and does **not** modify or duplicate
-framework logic.
-
-[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://jimi-py.streamlit.app/)
-
-![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/Jimi-streamlit.gif)
 
 ## Supported Capabilities
 
