@@ -42,19 +42,161 @@
   </summary>
   ******************************************************************************************
 '''
-import os
-from typing import Optional, List, Dict
 import multiprocessing
+import os
 import re
 from pathlib import Path
+from typing import Dict, List, Optional
+
+# -------------- APP-LEVEL UTILITIES -------------
 
 
-# ---------------- CONSTANTS ------------------
+def throw_if( name: str, value: object ) -> None:
+	"""Raise an exception when a required value is empty.
+
+	Purpose:
+		Provides the shared validation guard used by Jimi configuration helpers and provider
+		wrappers. The function raises a ValueError when a required argument or setting is
+		falsy so callers can fail early before using incomplete runtime configuration.
+
+	Args:
+		name: Name of the argument or configuration value being validated.
+		value: Value to validate.
+
+	Raises:
+		ValueError: Raised when value is falsy.
+	"""
+	if not value:
+		raise ValueError( f'Argument "{name}" cannot be empty!' )
+
+def get_bool( name: str, default: bool = False ) -> bool:
+	"""Read a Boolean environment variable.
+
+	Purpose:
+		Reads optional Boolean configuration from the environment while preserving safe module
+		import behavior. Missing variables return the supplied default, and recognized true
+		values allow deployment settings to control feature flags without changing source code.
+
+	Args:
+		name: Environment variable name.
+		default: Value returned when the environment variable is missing or invalid.
+
+	Returns:
+		bool: Parsed Boolean value or the supplied default.
+	"""
+	try:
+		throw_if( 'name', name )
+		value = os.getenv( name )
+		return default if value is None else value.strip( ).lower( ) in (
+				'1',
+				'true',
+				'yes',
+				'y',
+				'on'
+		)
+	except Exception:
+		return default
+
+def get_int( name: str, default: int ) -> int:
+	"""Read an integer environment variable.
+
+	Purpose:
+		Parses optional integer configuration from the environment while keeping Jimi imports
+		stable when deployment variables are missing, empty, or malformed. The helper supports
+		runtime settings such as token limits, thread counts, and other numeric controls.
+
+	Args:
+		name: Environment variable name.
+		default: Integer value returned when parsing is not possible.
+
+	Returns:
+		int: Parsed integer value or the supplied default.
+	"""
+	try:
+		throw_if( 'name', name )
+		value = os.getenv( name )
+		return default if value in (None, '') else int( str( value ).strip( ) )
+	except Exception:
+		return default
+
+def get_float( name: str, default: float ) -> float:
+	"""Read a floating-point environment variable.
+
+	Purpose:
+		Parses optional floating-point configuration from the environment while preserving
+		safe defaults for incomplete deployments. The helper supports model sampling,
+		penalty, and threshold settings that may be supplied outside the source tree.
+
+	Args:
+		name: Environment variable name.
+		default: Floating-point value returned when parsing is not possible.
+
+	Returns:
+		float: Parsed floating-point value or the supplied default.
+	"""
+	try:
+		throw_if( 'name', name )
+		value = os.getenv( name )
+		return default if value in (None, '') else float( str( value ).strip( ) )
+	except Exception:
+		return default
+
+def get_path( name: str, default: Path ) -> Path:
+	"""Read a filesystem path environment variable.
+
+	Purpose:
+		Resolves optional filesystem configuration from the environment for paths such as
+		logging locations, storage directories, and external assets. Missing or invalid values
+		fall back to the resolved default path so imports remain stable.
+
+	Args:
+		name: Environment variable name.
+		default: Default path used when the environment variable is missing or invalid.
+
+	Returns:
+		Path: Resolved environment path or resolved default path.
+	"""
+	try:
+		throw_if( 'name', name )
+		throw_if( 'default', default )
+		value = os.getenv( name )
+		return Path( value ).resolve( ) if value else default.resolve( )
+	except Exception:
+		return default.resolve( )
+
+def get_text( name: str, default: str ) -> str:
+	"""Read a text environment variable.
+
+	Purpose:
+		Returns optional text configuration from the environment while preserving the supplied
+		default for missing or empty variables. The helper centralizes simple text settings
+		used by paths, labels, table names, and provider configuration.
+
+	Args:
+		name: Environment variable name.
+		default: Text value returned when the environment variable is missing or empty.
+
+	Returns:
+		str: Environment value or supplied default.
+	"""
+	try:
+		throw_if( 'name', name )
+		value = os.getenv( name )
+		return default if value in (None, '') else str( value )
+	except Exception:
+		return default
+
+# ------ CONSTANTS  -------------------
+
+BASE_DIR = Path( __file__ ).resolve( ).parent
+ROOT_DIR = Path( __file__ ).resolve( ).parent
+LOG_DIR: Path = get_path( 'LOG_DIR', ROOT_DIR / 'logging' )
+LOG_PATH: str = get_text( 'LOG_PATH', str( LOG_DIR / 'Exceptions.db' ) )
+LOG_FILE: str = get_text( 'LOG_FILE', 'Exceptions' )
 OUTPUT_FILE_NAME = "jimi.wav"
 SAMPLE_RATE = 48000
 MODEL_PATH = r'llm/jimi-4-E4B-it-Q4_K_M.gguf'
 DB_PATH = r'stores/Data.db'
-BASE_DIR = Path(__file__).resolve().parent
 FAVICON = r'resources/images/favicon.ico'
 LOGO_PATH = r'resources/images/Jimi.png'
 BLUE_DIVIDER = "<div style='height:2px;align:left;background:#0078FC;margin:6px 0 10px 0;'></div>"
@@ -71,10 +213,16 @@ DEFAULT_CTX = 4096
 CORES = multiprocessing.cpu_count( )
 
 # ---------------- GEMMA CONFIG ------------------
+
 LOGO = r'resources/images/jimi_logo.png'
 
-MODES = [ 'Text Generation', 'Document Q&A', 'Semantic Search',
-          'Prompt Engineering', 'Data Management' ]
+MODES = [
+		'Text Generation',
+		'Document Q&A',
+		'Semantic Search',
+		'Prompt Engineering',
+		'Data Management'
+]
 
 # ---------- DEFINITIONS -------------------
 

@@ -2,19 +2,32 @@
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/jimi_project.png)
 
-<p align="center">
-  <a href="#-overview">Overview</a> |
-  <a href="#-features">Features</a> |
-  <a href="#-application-modes">Modes</a> |
-  <a href="#-requirements">Requirements</a> |
-  <a href="#-local-llm">LLM</a> |
-  <a href="#-installation">Installation</a> |
-  <a href="#-running-the-streamlit-application">Run</a> |
-  <a href="#-configuration">Configuration</a> |
-  <a href="#-design-and-architecture">Architecture</a> |
-  <a href="#-capabilities">Capabilities</a> |
-  <a href="#-data-management">Data</a> |
+<p align="left">
+  <a href="#-overview">Overview</a> 
+  &bull;
+  <a href="#-features">Features</a> 
+  &bull;
+  <a href="#-application-modes">Modes</a> 
+  &bull;
+  <a href="#-requirements">Requirements</a> 
+  &bull;
+  <a href="#-local-llm">LLM</a> 
+  &bull;
+  <a href="#-installation">Installation</a> 
+  &bull;
+  <a href="#-running-the-streamlit-application">Run</a> 
+  &bull;
+  <a href="#-configuration">Configuration</a> 
+  &bull;
+  <a href="#-design-and-architecture">Architecture</a> 
+  &bull;
+  <a href="#-capabilities">Capabilities</a> 
+  &bull;
+  <a href="#-data-management">Data</a> 
+  &bull;
 </p>
+
+___
 
 Jimi is a Python and Streamlit application for local language-model inference,
 retrieval-augmented generation, semantic search, prompt engineering, and SQLite-backed data
@@ -37,7 +50,7 @@ operations.
 
 * Databricks workspace repository for the Jimi codebase.
 * Supports collaborative development, analytics, notebook execution, and application deployment.
-* 
+
 ## 🧠 Custom LLM
 
 [![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
