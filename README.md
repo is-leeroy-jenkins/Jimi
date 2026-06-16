@@ -29,6 +29,9 @@
 
 ___
 
+
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0078FC?style=for-the-badge&logo=github)](<<PATH TO DOCS GITHUB PAGES>>)
+
 Jimi is a Python and Streamlit application for local language-model inference,
 retrieval-augmented generation, semantic search, prompt engineering, and SQLite-backed data
 management. It is designed for federal analysts, technical users, and data-science workflows that
