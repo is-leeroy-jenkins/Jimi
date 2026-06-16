@@ -30,7 +30,7 @@
 ___
 
 
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0078FC?style=for-the-badge&logo=github)](<<PATH TO DOCS GITHUB PAGES>>)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-0078FC?style=for-the-badge&logo=github)](https://is-leeroy-jenkins.github.io/Jimi/)
 
 Jimi is a Python and Streamlit application for local language-model inference,
 retrieval-augmented generation, semantic search, prompt engineering, and SQLite-backed data
