@@ -1,3 +1,4 @@
+
 /*
  * ==========================================================================================
  *  Jimi Documentation JavaScript
@@ -6,8 +7,13 @@
  *  Purpose:
  *      Provides progressive enhancements for the Jimi MkDocs Material documentation site.
  *      The script improves API navigation, table filtering, code-block readability, heading
- *      linking, page tools, scroll position behavior, and reading progress without requiring
- *      external libraries.
+ *      linking, page tools, scroll position behavior, active table-of-contents highlighting,
+ *      and reading progress without requiring external libraries.
+ *
+ *  Important:
+ *      This version intentionally does not inject page-path metadata under page titles.
+ *      The previous visible path line, such as "/Jimi/user-guide/prompt-engineering",
+ *      was produced by addPagePathMetadata(). That behavior has been removed.
  *
  *  Compatibility:
  *      - MkDocs Material
@@ -18,6 +24,7 @@
  *      This script avoids network calls, analytics, cookies, and storage of user content.
  * ==========================================================================================
  */
+
 ( function()
 {
 	"use strict";
@@ -52,12 +59,14 @@
 		},
 		init: function()
 		{
-			if( document.documentElement.getAttribute( this.config.initializedAttribute ) ===
-					"true" )
+			if( document.documentElement.getAttribute(
+					this.config.initializedAttribute ) === "true" )
 			{
 				return;
 			}
-			document.documentElement.setAttribute( this.config.initializedAttribute, "true" );
+			document.documentElement.setAttribute( this.config.initializedAttribute,
+					"true" );
+			this.removeExistingPagePathMetadata();
 			this.enhanceExternalLinks();
 			this.customizeSearch();
 			this.addReadingProgress();
@@ -67,7 +76,6 @@
 			this.addTableFilters();
 			this.addCodeLabels();
 			this.addCodeToggles();
-			this.addPagePathMetadata();
 			this.restoreNavigationScroll();
 			this.enhanceKeyboardFocus();
 			this.enhanceApiReference();
@@ -119,12 +127,13 @@
 			{
 				self.saveNavigationScroll();
 			} );
-			if( typeof document$ !== "undefined" && document$ && typeof document$.subscribe ===
-					"function" )
+			if( typeof document$ !== "undefined" && document$ &&
+					typeof document$.subscribe === "function" )
 			{
 				document$.subscribe( function()
 				{
-					document.documentElement.removeAttribute( self.config.initializedAttribute );
+					document.documentElement.removeAttribute(
+							self.config.initializedAttribute );
 					setTimeout( function()
 					{
 						self.init();
@@ -215,6 +224,14 @@
 				}
 			}
 		},
+		removeExistingPagePathMetadata: function()
+		{
+			const pathNodes = document.querySelectorAll( ".jimi-page-path" );
+			pathNodes.forEach( function( node )
+			{
+				node.remove();
+			} );
+		},
 		enhanceExternalLinks: function()
 		{
 			const links = document.querySelectorAll( ".md-typeset a[href]" );
@@ -268,7 +285,8 @@
 		},
 		updateReadingProgress: function()
 		{
-			const progress = document.querySelector( "#" + this.config.progressId + " span" );
+			const progress = document.querySelector(
+					"#" + this.config.progressId + " span" );
 			if( !progress )
 			{
 				return;
@@ -292,8 +310,8 @@
 				maxScroll = 1;
 			}
 			progress.style.width =
-					Math.min( Math.max( ( scrollTop / maxScroll ) * 100, 0 ), 100 ).toFixed( 2 ) +
-					"%";
+					Math.min( Math.max( ( scrollTop / maxScroll ) * 100, 0 ), 100 )
+							.toFixed( 2 ) + "%";
 		},
 		addScrollTopButton: function()
 		{
@@ -380,7 +398,8 @@
 				button.type = "button";
 				button.className = JimiDocs.config.headingLinkClass;
 				button.setAttribute( "data-jimi-copy-heading", heading.id );
-				button.setAttribute( "aria-label", "Copy link to " + heading.textContent.trim() );
+				button.setAttribute( "aria-label",
+						"Copy link to " + heading.textContent.trim() );
 				button.setAttribute( "title", "Copy section link" );
 				button.textContent = "§";
 				heading.appendChild( button );
@@ -542,6 +561,27 @@
 			{
 				return this.formatLanguageName( match[ 1 ] );
 			}
+			const text = code.textContent.trim();
+			if( /^site_name:|^theme:|^plugins:|^nav:/m.test( text ) )
+			{
+				return "YAML";
+			}
+			if( /def\s+\w+\(|class\s+\w+/.test( text ) )
+			{
+				return "Python";
+			}
+			if( /^mkdocs\s|^python\s|-m\s+/.test( text ) )
+			{
+				return "Shell";
+			}
+			if( /^\{[\s\S]*\}$/.test( text ) )
+			{
+				return "JSON";
+			}
+			if( /^#\s|^##\s|```/.test( text ) )
+			{
+				return "Markdown";
+			}
 			return "";
 		},
 		formatLanguageName: function( language )
@@ -552,7 +592,7 @@
 				python: "Python",
 				ps1: "PowerShell",
 				powershell: "PowerShell",
-				bash: "Bash",
+				bash: "Shell",
 				sh: "Shell",
 				shell: "Shell",
 				yaml: "YAML",
@@ -621,24 +661,6 @@
 				button.textContent = "Collapse code";
 			}
 		},
-		addPagePathMetadata: function()
-		{
-			const content = document.querySelector( this.config.contentSelector );
-			if( !content || content.querySelector( ".jimi-page-path" ) )
-			{
-				return;
-			}
-			const title = content.querySelector( "h1" );
-			if( !title )
-			{
-				return;
-			}
-			const path = document.createElement( "div" );
-			path.className = "jimi-page-path";
-			path.setAttribute( "aria-label", "Current page path" );
-			path.textContent = window.location.pathname.replace( /\/$/, "" ) || "/";
-			title.insertAdjacentElement( "afterend", path );
-		},
 		restoreNavigationScroll: function()
 		{
 			const nav = document.querySelector( this.config.navSelector );
@@ -668,7 +690,8 @@
 			}
 			try
 			{
-				sessionStorage.setItem( this.config.navScrollKey, String( nav.scrollTop || 0 ) );
+				sessionStorage.setItem( this.config.navScrollKey,
+						String( nav.scrollTop || 0 ) );
 			}
 			catch( error )
 			{
@@ -884,3 +907,4 @@
 		startJimiDocs();
 	}
 } )();
+

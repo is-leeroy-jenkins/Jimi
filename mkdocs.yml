@@ -9,8 +9,8 @@ repo_name: is-leeroy-jenkins/Jimi
 theme:
   name: material
   language: en
-  logo: resources/images/jimi_logo.png
-  favicon: resources/images/favicon.ico
+  logo: img/jimi_logo.png
+  favicon: img/favicon.ico
   features:
     - navigation.instant
     - navigation.tracking
