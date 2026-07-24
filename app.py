@@ -42,7 +42,9 @@
   ******************************************************************************************
 '''
 from __future__ import annotations
-
+import socket
+from google import genai
+from gemini import Chat
 import base64
 import hashlib
 import re
@@ -114,8 +116,32 @@ if 'top_k' not in st.session_state:
 if 'frequency_penalty' not in st.session_state:
 	st.session_state[ 'frequency_penalty' ] = 0.0
 
-if 'presense_penalty' not in st.session_state:
-	st.session_state[ 'presense_penalty' ] = 0.0
+if 'presence_penalty' not in st.session_state:
+		st.session_state[ 'presence_penalty' ] = 0.0
+
+if 'generation_active' not in st.session_state:
+	st.session_state[ 'generation_active' ] = False
+
+if 'generation_stop_requested' not in st.session_state:
+	st.session_state[ 'generation_stop_requested' ] = False
+
+if 'generation_request_id' not in st.session_state:
+	st.session_state[ 'generation_request_id' ] = 0
+
+if 'generation_provider' not in st.session_state:
+	st.session_state[ 'generation_provider' ] = 'local'
+
+if 'generation_status' not in st.session_state:
+	st.session_state[ 'generation_status' ] = 'idle'
+
+if 'gemini_grounding_model' not in st.session_state:
+	st.session_state[ 'gemini_grounding_model' ] = 'gemini-2.5-flash-lite'
+
+if 'gemini_grounding_available' not in st.session_state:
+	st.session_state[ 'gemini_grounding_available' ] = False
+
+if 'gemini_grounding_error' not in st.session_state:
+	st.session_state[ 'gemini_grounding_error' ] = ''
 
 if 'repeat_penalty' not in st.session_state:
 	st.session_state[ 'repeat_penalty' ] = 0.0
@@ -2087,25 +2113,124 @@ def build_prompt( user_input: str ) -> str:
 	prompt += f'<|user|>\n{user_input}\n</s>\n<|assistant|>\n'
 	return prompt
 
-def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_penalty: float,
-	max_tokens: int, stream: bool, output: Any | None = None, ) -> str:
-	"""Raw model-prompt execution.
+def resolve_generation_parameters( ) -> Dict[ str, Any ]:
+	"""Generation parameter resolution.
 
 	Purpose:
-	    Executes a fully constructed prompt through the configured local language
-	    model without applying any additional prompt-building or conversation logic.
+	    Reads, normalizes, validates, and returns the complete generation-parameter
+	    contract captured by the Streamlit user interface.
 
 	Args:
-	    prompt (str): Complete prompt submitted directly to the local model.
-	    temperature (float): Sampling temperature.
-	    top_p (float): Nucleus-sampling probability threshold.
-	    repeat_penalty (float): Repetition penalty applied during generation.
-	    max_tokens (int): Maximum number of response tokens.
-	    stream (bool): Indicates whether response tokens should be streamed.
-	    output (Any | None): Optional Streamlit output container used during streaming.
+	    None.
 
 	Returns:
-	    str: Generated model response text.
+	    Dict[str, Any]: Normalized generation parameters shared by local and remote
+	    model execution paths.
+	"""
+	context_window: int = int(
+		st.session_state.get( 'context_window', cfg.DEFAULT_CTX, ) or cfg.DEFAULT_CTX )
+	
+	if context_window <= 0:
+		context_window = int( cfg.DEFAULT_CTX )
+	
+	cpu_threads: int = int( st.session_state.get( 'cpu_threads', cfg.CORES, ) or cfg.CORES )
+	
+	if cpu_threads <= 0:
+		cpu_threads = int( cfg.CORES )
+	
+	max_tokens: int = int( st.session_state.get( 'max_tokens', 1024, ) or 1024 )
+	
+	if max_tokens <= 0:
+		max_tokens = 1024
+	
+	temperature: float = float( st.session_state.get( 'temperature', 0.0, ) or 0.0 )
+	
+	temperature = max( 0.0, temperature, )
+	
+	top_p: float = float( st.session_state.get( 'top_percent', 0.95, ) or 0.95 )
+	
+	top_p = min( 1.0, max( 0.0, top_p, ), )
+	
+	top_k: int = int( st.session_state.get( 'top_k', 40, ) or 40 )
+	
+	if top_k <= 0:
+		top_k = 40
+	
+	frequency_penalty: float = float( st.session_state.get( 'frequency_penalty', 0.0, ) or 0.0 )
+	
+	presence_penalty: float = float( st.session_state.get( 'presence_penalty', 0.0, ) or 0.0 )
+	
+	repeat_penalty: float = float( st.session_state.get( 'repeat_penalty', 1.1, ) or 1.1 )
+	
+	if repeat_penalty <= 0.0:
+		repeat_penalty = 1.1
+	
+	repeat_window: int = int( st.session_state.get( 'repeat_window', 64, ) or 64 )
+	
+	if repeat_window < 0:
+		repeat_window = 0
+	
+	random_seed: int = int( st.session_state.get( 'random_seed', -1, ) )
+	
+	return { 'context_window': context_window, 'cpu_threads': cpu_threads, 'max_tokens':
+		max_tokens,
+		'temperature': temperature, 'top_p': top_p, 'top_k': top_k,
+		'frequency_penalty': frequency_penalty, 'presence_penalty': presence_penalty,
+		'repeat_penalty': repeat_penalty, 'repeat_window': repeat_window,
+		'random_seed': random_seed, }
+
+def resolve_gemini_api_key( ) -> str | None:
+	"""Resolve the configured Gemini API key.
+
+	Purpose:
+		Resolves the Gemini Developer API credential from environment variables or
+		the application configuration module. Environment variables take precedence
+		over configuration values so deployed credentials can override local settings.
+
+	Returns:
+		str | None: Configured Gemini or Google API key when available; otherwise None.
+	"""
+	gemini_api_key: Any = os.environ.get( 'GEMINI_API_KEY', )
+	if gemini_api_key is not None and str( gemini_api_key ).strip( ):
+		return str( gemini_api_key ).strip( )
+	
+	google_api_key: Any = os.environ.get( 'GOOGLE_API_KEY', )
+	if google_api_key is not None and str( google_api_key ).strip( ):
+		return str( google_api_key ).strip( )
+	
+	gemini_api_key = getattr( cfg, 'GEMINI_API_KEY', None, )
+	if gemini_api_key is not None and str( gemini_api_key ).strip( ):
+		return str( gemini_api_key ).strip( )
+	
+	google_api_key = getattr( cfg, 'GOOGLE_API_KEY', None, )
+	if google_api_key is not None and str( google_api_key ).strip( ):
+		return str( google_api_key ).strip( )
+	
+	return None
+
+def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_penalty: float,
+	max_tokens: int, stream: bool, output: Any | None = None, ) -> str:
+	"""Execute a completed prompt through the local language model.
+
+	Purpose:
+		Executes a fully constructed prompt through the configured local llama.cpp
+		model without applying additional prompt-building or conversation logic. The
+		function resolves the complete generation-parameter contract, applies valid
+		call-specific overrides, passes every supported user-interface argument to
+		llama.cpp, and supports both streaming and non-streaming output.
+
+	Args:
+		prompt: Complete prompt submitted directly to the local model.
+		temperature: Sampling-temperature override supplied by the calling workflow.
+		top_p: Nucleus-sampling probability override supplied by the calling workflow.
+		repeat_penalty: Repetition-penalty override supplied by the calling workflow.
+		max_tokens: Maximum-output-token override supplied by the calling workflow.
+		stream: Indicates whether response text should be streamed.
+		output: Optional Streamlit output container used during streaming.
+
+	Returns:
+		str: Generated model response text. An empty string is returned when the
+		prompt is empty, the model is unavailable, or no response text is produced.
 	"""
 	global llm
 	
@@ -2114,35 +2239,58 @@ def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_pena
 	if not prompt_value.strip( ):
 		return ''
 	
-	context_window_value: int = int(
-		st.session_state.get( 'context_window', cfg.DEFAULT_CTX, ) or cfg.DEFAULT_CTX )
+	generation_parameters: Dict[ str, Any ] = resolve_generation_parameters( )
 	
-	cpu_thread_value: int = int( st.session_state.get( 'cpu_threads', cfg.CORES, ) or cfg.CORES )
+	context_window_value: int = int( generation_parameters[ 'context_window' ] )
 	
-	llm = load_llm( context_window_value, cpu_thread_value, )
+	cpu_thread_value: int = int( generation_parameters[ 'cpu_threads' ] )
+	
+	repeat_window_value: int = int( generation_parameters[ 'repeat_window' ] )
+	
+	llm = load_llm( ctx=context_window_value, threads=cpu_thread_value,
+		repeat_window=repeat_window_value, )
 	
 	if llm is None:
 		st.error( f'Local model unavailable at {cfg.MODEL_PATH}' )
 		
 		return ''
 	
-	max_token_value: int = (int( max_tokens ) if int( max_tokens ) > 0 else 1024)
+	max_tokens_value: int = (
+		int( max_tokens ) if max_tokens is not None and int( max_tokens ) > 0 else int(
+			generation_parameters[ 'max_tokens' ] ))
 	
-	temperature_value: float = (float( temperature ) if temperature is not None else 0.0)
+	temperature_value: float = (float( temperature ) if temperature is not None else float(
+		generation_parameters[ 'temperature' ] ))
 	
-	top_p_value: float = (float( top_p ) if top_p is not None else 0.95)
+	top_p_value: float = (
+		float( top_p ) if top_p is not None else float( generation_parameters[ 'top_p' ] ))
 	
-	repeat_penalty_value: float = (float( repeat_penalty ) if repeat_penalty is not None else 1.1)
+	repeat_penalty_value: float = (float( repeat_penalty ) if repeat_penalty is not None else
+	                               float(
+		generation_parameters[ 'repeat_penalty' ] ))
+	
+	top_k_value: int = int( generation_parameters[ 'top_k' ] )
+	
+	frequency_penalty_value: float = float( generation_parameters[ 'frequency_penalty' ] )
+	
+	presence_penalty_value: float = float( generation_parameters[ 'presence_penalty' ] )
+	
+	random_seed_value: int = int( generation_parameters[ 'random_seed' ] )
+	
+	seed_value: int | None = (random_seed_value if random_seed_value >= 0 else None)
+	
+	request_arguments: Dict[ str, Any ] = { 'prompt': prompt_value, 'max_tokens': max_tokens_value,
+		'temperature': temperature_value, 'top_p': top_p_value, 'top_k': top_k_value,
+		'frequency_penalty': frequency_penalty_value, 'presence_penalty': presence_penalty_value,
+		'repeat_penalty': repeat_penalty_value, 'seed': seed_value, 'stop': [ '</s>' ], }
 	
 	if not stream:
-		response: Dict[ str, Any ] = llm( prompt_value, stream=False, max_tokens=max_token_value,
-			temperature=temperature_value, top_p=top_p_value, repeat_penalty=repeat_penalty_value,
-			stop=[ '</s>', ], )
+		response: Dict[ str, Any ] = llm( stream=False, **request_arguments, )
 		
 		response_choices: Any = response.get( 'choices', [ ], )
 		
-		if (not isinstance( response_choices, list, ) or len(
-			response_choices ) == 0 or not isinstance( response_choices[ 0 ], dict, )):
+		if (not isinstance( response_choices, list ) or len(
+			response_choices ) == 0 or not isinstance( response_choices[ 0 ], dict )):
 			return ''
 		
 		return str( response_choices[ 0 ].get( 'text', '', ) or '' ).strip( )
@@ -2152,16 +2300,16 @@ def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_pena
 	if output is None:
 		output = st.empty( )
 	
-	for response_chunk in llm( prompt_value, stream=True, max_tokens=max_token_value,
-			temperature=temperature_value, top_p=top_p_value, repeat_penalty=repeat_penalty_value,
-			stop=[ '</s>', ], ):
-		if not isinstance( response_chunk, dict, ):
+	response_stream: Any = llm( stream=True, **request_arguments, )
+	
+	for response_chunk in response_stream:
+		if not isinstance( response_chunk, dict ):
 			continue
 		
 		chunk_choices: Any = response_chunk.get( 'choices', [ ], )
 		
-		if (not isinstance( chunk_choices, list, ) or len( chunk_choices ) == 0 or not isinstance(
-			chunk_choices[ 0 ], dict, )):
+		if (not isinstance( chunk_choices, list ) or len( chunk_choices ) == 0 or not isinstance(
+			chunk_choices[ 0 ], dict )):
 			continue
 		
 		chunk_text: str = str( chunk_choices[ 0 ].get( 'text', '', ) or '' )
@@ -2179,34 +2327,50 @@ def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_pena
 
 def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_penalty: float,
 	max_tokens: int, stream: bool, output: Any | None = None, ) -> str:
-	"""Text Generation model turn.
+	"""Execute one Text Generation model turn.
 
 	Purpose:
-	    Builds the Text Generation prompt from the current system instructions,
-	    task controls, context, and prior conversation history, then submits the
-	    completed prompt through the raw model executor.
+		Validates the current user request, builds the complete Text Generation prompt,
+		resolves the authoritative generation-parameter contract, applies explicit
+		call-specific overrides, and submits the completed prompt to the raw local-model
+		executor.
 
 	Args:
-	    user_input (str): Current Text Generation user request.
-	    temperature (float): Sampling temperature.
-	    top_p (float): Nucleus-sampling probability threshold.
-	    repeat_penalty (float): Repetition penalty applied during generation.
-	    max_tokens (int): Maximum number of response tokens.
-	    stream (bool): Indicates whether response tokens should be streamed.
-	    output (Any | None): Optional Streamlit output container used during streaming.
+		user_input: Current Text Generation user request.
+		temperature: Sampling-temperature override supplied by the calling workflow.
+		top_p: Nucleus-sampling probability override supplied by the calling workflow.
+		repeat_penalty: Repetition-penalty override supplied by the calling workflow.
+		max_tokens: Maximum-output-token override supplied by the calling workflow.
+		stream: Indicates whether response text should be streamed.
+		output: Optional Streamlit output container used during streaming.
 
 	Returns:
-	    str: Generated model response text.
+		str: Generated model response text. An empty string is returned when the user
+		request contains no usable text.
 	"""
-	user_input_value: str = str( user_input or '' )
-	
-	if not user_input_value.strip( ):
+	user_input_value: str = str( user_input or '' ).strip( )
+	if not user_input_value:
 		return ''
 	
-	effective_prompt: str = build_prompt( user_input=user_input_value, )
+	generation_parameters: Dict[ str, Any ] = resolve_generation_parameters( )
+	temperature_value: float = (float( temperature ) if temperature is not None else float(
+		generation_parameters[ 'temperature' ] ))
 	
-	return run_model_prompt( prompt=effective_prompt, temperature=temperature, top_p=top_p,
-		repeat_penalty=repeat_penalty, max_tokens=max_tokens, stream=stream, output=output, )
+	top_p_value: float = (
+		float( top_p ) if top_p is not None else float( generation_parameters[ 'top_p' ] ))
+	
+	repeat_penalty_value: float = (float( repeat_penalty ) if repeat_penalty is not None else
+	                               float(
+		generation_parameters[ 'repeat_penalty' ] ))
+	
+	max_tokens_value: int = (
+		int( max_tokens ) if max_tokens is not None and int( max_tokens ) > 0 else int(
+			generation_parameters[ 'max_tokens' ] ))
+	
+	effective_prompt: str = build_prompt( user_input=user_input_value, )
+	return run_model_prompt( prompt=effective_prompt, temperature=temperature_value,
+		top_p=top_p_value, repeat_penalty=repeat_penalty_value, max_tokens=max_tokens_value,
+		stream=bool( stream ), output=output, )
 
 def get_prompt_categories( ) -> List[ str ]:
 	"""
@@ -4464,39 +4628,36 @@ def toggle_text_generation_prompt_preview( ) -> None:
 # -------------- LLM  UTILITIES -------------------
 
 @st.cache_resource
-def load_llm( ctx: int, threads: int ) -> Any | None:
-	"""
-		Purpose:
-		--------
-		Lazily load the local llama.cpp model using the supplied runtime settings.
+def load_llm( ctx: int, threads: int, repeat_window: int=64 ) -> Any | None:
+	"""Load the configured local language model.
 
-		Parameters:
-		-----------
-		ctx : int
-			Context window size.
-		threads : int
-			CPU thread count.
+	Purpose:
+		Lazily loads and caches the configured llama.cpp model using the selected
+		context-window size, CPU-thread count, and repetition-penalty window. Each
+		distinct combination of runtime settings receives its own cached model
+		instance.
 
-		Returns:
-		--------
-		Any | None
+	Args:
+		ctx: Context-window size used to initialize the local model.
+		threads: CPU-thread count used for local inference.
+		repeat_window: Number of recent tokens considered when applying repetition,
+		frequency, and presence penalties.
+
+	Returns:
+		Any | None: Initialized llama.cpp model instance when the model and dependency
+		are available; otherwise None.
 	"""
 	try:
 		if not local_model_available( ):
 			return None
 		
 		from llama_cpp import Llama
-		
-		ctx_value = int( ctx ) if int( ctx ) > 0 else int( cfg.DEFAULT_CTX )
-		thread_value = int( threads ) if int( threads ) > 0 else int( cfg.CORES )
-		
-		return Llama(
-			model_path=str( cfg.MODEL_PATH ),
-			n_ctx=ctx_value,
-			n_threads=thread_value,
-			n_batch=512,
-			verbose=False
-		)
+		context_window_value: int = (int( ctx ) if int( ctx ) > 0 else int( cfg.DEFAULT_CTX ))
+		cpu_thread_value: int = (int( threads ) if int( threads ) > 0 else int( cfg.CORES ))
+		repeat_window_value: int = max( 0, int( repeat_window ), )
+		return Llama( model_path=str( cfg.MODEL_PATH ), n_ctx=context_window_value,
+			n_threads=cpu_thread_value, n_batch=512, last_n_tokens_size=repeat_window_value,
+			verbose=False, )
 	except Exception:
 		return None
 	
@@ -4571,7 +4732,7 @@ if mode == 'Text Generation':
 	temperature = st.session_state.get( 'temperature', 0.0 )
 	is_grounded = st.session_state.get( 'is_grounded', False )
 	frequency_penalty = st.session_state.get( 'frequency_penalty', 0.0 )
-	presense_penalty = st.session_state.get( 'presense_penalty', 0.0 )
+	presense_penalty = st.session_state.get( 'presence_penalty', 0.0 )
 	repeat_penalty = st.session_state.get( 'repeat_penalty', 0.0 )
 	repeat_window = st.session_state.get( 'repeat_window', 0.0 )
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
@@ -4875,7 +5036,7 @@ elif mode == 'Document Q&A':
 	top_k = st.session_state.get( 'top_k', 0 )
 	temperature = st.session_state.get( 'temperature', 0.0 )
 	frequency_penalty = st.session_state.get( 'frequency_penalty', 0.0 )
-	presense_penalty = st.session_state.get( 'presense_penalty', 0.0 )
+	presence_penalty = st.session_state.get( 'presence_penalty', 0.0 )
 	repeat_penalty = st.session_state.get( 'repeat_penalty', 0.0 )
 	repeat_window = st.session_state.get( 'repeat_window', 0.0 )
 	cpu_threads = st.session_state.get( 'cpu_threads', cfg.CORES )
@@ -6465,7 +6626,7 @@ temperature = st.session_state.get( 'temperature' )
 top_p = st.session_state.get( 'top_percent' )
 top_k = st.session_state.get( 'top_k' )
 frequency = st.session_state.get( 'frequency_penalty' )
-presense = st.session_state.get( 'presense_penalty' )
+presence = st.session_state.get( 'presence_penalty' )
 repeat_penalty = st.session_state.get( 'repeat_penalty' )
 max_tokens = st.session_state.get( 'max_tokens' )
 context_window = st.session_state.get( 'context_window' )
@@ -6489,8 +6650,8 @@ if top_k is not None:
 if frequency is not None:
 	right_parts.append( f'Freq: {float( frequency ):0.2f}' )
 
-if presense is not None:
-	right_parts.append( f'Presence: {float( presense ):0.2f}' )
+if presence is not None:
+	right_parts.append( f'Presence: {float( presence ):0.2f}' )
 
 if repeat_penalty is not None:
 	right_parts.append( f'Repeat: {float( repeat_penalty ):0.2f}' )
