@@ -635,7 +635,137 @@ def initialize_database( ) -> None:
 		if id_primary_key_position != 1:
 			raise RuntimeError( 'The Prompts.ID column must be the table primary key.' )
 
-# -------- SEMANTIC SEARCH UTILS
+# ----- Gemini Utilities
+
+def gemini_grounding_available( ) -> bool:
+	"""Determine whether Gemini grounding is configured.
+
+	Purpose:
+		Determines whether the Gemini API credential required by the existing
+		Gemini wrapper is available to the application.
+
+	Returns:
+		bool: True when a nonempty Gemini API key is configured; otherwise False.
+	"""
+	return bool( cfg.GEMINI_API_KEY and str( cfg.GEMINI_API_KEY ).strip( ) )
+
+def run_grounded_gemini_turn( user_input: str, model: str, stream: bool,
+	output: Any | None = None, ) -> str:
+	"""Execute one Google-grounded Gemini Text Generation turn.
+
+	Purpose:
+		Builds the effective Text Generation prompt, resolves the shared generation
+		parameters, and submits the request through the existing Gemini Chat wrapper
+		with Google Search enabled. The function supports streamed and non-streamed
+		responses without recreating credential, client, tool, or response-processing
+		logic already implemented by the wrapper.
+
+	Args:
+		user_input: Current Text Generation user request.
+		model: Gemini model identifier used for the grounded request.
+		stream: Indicates whether response text should be streamed.
+		output: Optional Streamlit output container used during streaming.
+
+	Returns:
+		str: Grounded Gemini response text.
+
+	Raises:
+		ValueError: Raised when the prompt, API key, or model is unavailable.
+		Exception: Re-raised when the Gemini wrapper reports a provider failure.
+	"""
+	user_input_value: str = str( user_input or '' ).strip( )
+	
+	if not user_input_value:
+		return ''
+	
+	if not gemini_grounding_available( ):
+		raise ValueError( 'Gemini grounding requires GEMINI_API_KEY in config.py.' )
+	
+	model_value: str = str( model or st.session_state.get( 'gemini_grounding_model',
+		'gemini-2.5-flash-lite', ) ).strip( )
+	
+	if not model_value:
+		raise ValueError( 'A Gemini grounding model is required.' )
+	
+	generation_parameters: Dict[ str, Any ] = resolve_generation_parameters( )
+	
+	effective_prompt: str = build_prompt( user_input=user_input_value, )
+	
+	chat: Chat = Chat( model=model_value, )
+	
+	if model_value not in (chat.model_options or [ ]):
+		raise ValueError( f'Unsupported Gemini grounding model: {model_value}' )
+	
+	st.session_state[ 'generation_provider' ] = 'gemini'
+	st.session_state[ 'generation_status' ] = 'generating'
+	st.session_state[ 'gemini_grounding_error' ] = ''
+	st.session_state[ 'gemini_grounding_sources' ] = [ ]
+	
+	response_buffer: str = ''
+	
+	if stream:
+		if output is None:
+			output = st.empty( )
+		
+		def stream_handler( chunk: str ) -> None:
+			"""Render one streamed Gemini response chunk.
+
+			Purpose:
+				Appends one text chunk returned by the Gemini wrapper to the current
+				response buffer and refreshes the Streamlit output container.
+
+			Args:
+				chunk: Text fragment returned by the Gemini streaming response.
+
+			Returns:
+				None: This function performs its work through side effects.
+			"""
+			nonlocal response_buffer
+			
+			chunk_value: str = str( chunk or '' )
+			
+			if not chunk_value:
+				return
+			
+			response_buffer += chunk_value
+			
+			output.markdown( response_buffer + '▌' )
+		
+		response: str | None = chat.generate_text( prompt=effective_prompt, model=model_value,
+			temperature=float( generation_parameters[ 'temperature' ] ),
+			top_p=float( generation_parameters[ 'top_p' ] ),
+			top_k=int( generation_parameters[ 'top_k' ] ),
+			frequency=float( generation_parameters[ 'frequency_penalty' ] ),
+			presence=float( generation_parameters[ 'presence_penalty' ] ),
+			max_tokens=int( generation_parameters[ 'max_tokens' ] ), tools=[ 'google_search' ],
+			tool_choice='AUTO', stream=True, stream_handler=stream_handler, )
+		
+		response_text: str = str( response or response_buffer or '' ).strip( )
+		
+		output.markdown( response_text )
+		
+		st.session_state[ 'generation_status' ] = 'completed'
+		
+		return response_text
+	
+	response = chat.generate_text( prompt=effective_prompt, model=model_value,
+		temperature=float( generation_parameters[ 'temperature' ] ),
+		top_p=float( generation_parameters[ 'top_p' ] ),
+		top_k=int( generation_parameters[ 'top_k' ] ),
+		frequency=float( generation_parameters[ 'frequency_penalty' ] ),
+		presence=float( generation_parameters[ 'presence_penalty' ] ),
+		max_tokens=int( generation_parameters[ 'max_tokens' ] ), tools=[ 'google_search' ],
+		tool_choice='AUTO', stream=False, )
+	
+	response_text = str( response or '' ).strip( )
+	
+	st.session_state[ 'gemini_grounding_sources' ] = (chat.get_grounding_sources( ))
+	
+	st.session_state[ 'generation_status' ] = 'completed'
+	
+	return response_text
+
+# -------- Semantic Search Utilities
 
 def decode_embedding_rows( ) -> List[ Tuple[ str, np.ndarray ] ]:
 	"""
@@ -2179,58 +2309,29 @@ def resolve_generation_parameters( ) -> Dict[ str, Any ]:
 		'repeat_penalty': repeat_penalty, 'repeat_window': repeat_window,
 		'random_seed': random_seed, }
 
-def resolve_gemini_api_key( ) -> str | None:
-	"""Resolve the configured Gemini API key.
-
-	Purpose:
-		Resolves the Gemini Developer API credential from environment variables or
-		the application configuration module. Environment variables take precedence
-		over configuration values so deployed credentials can override local settings.
-
-	Returns:
-		str | None: Configured Gemini or Google API key when available; otherwise None.
-	"""
-	gemini_api_key: Any = os.environ.get( 'GEMINI_API_KEY', )
-	if gemini_api_key is not None and str( gemini_api_key ).strip( ):
-		return str( gemini_api_key ).strip( )
-	
-	google_api_key: Any = os.environ.get( 'GOOGLE_API_KEY', )
-	if google_api_key is not None and str( google_api_key ).strip( ):
-		return str( google_api_key ).strip( )
-	
-	gemini_api_key = getattr( cfg, 'GEMINI_API_KEY', None, )
-	if gemini_api_key is not None and str( gemini_api_key ).strip( ):
-		return str( gemini_api_key ).strip( )
-	
-	google_api_key = getattr( cfg, 'GOOGLE_API_KEY', None, )
-	if google_api_key is not None and str( google_api_key ).strip( ):
-		return str( google_api_key ).strip( )
-	
-	return None
-
 def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_penalty: float,
 	max_tokens: int, stream: bool, output: Any | None = None, ) -> str:
 	"""Execute a completed prompt through the local language model.
 
 	Purpose:
 		Executes a fully constructed prompt through the configured local llama.cpp
-		model without applying additional prompt-building or conversation logic. The
-		function resolves the complete generation-parameter contract, applies valid
-		call-specific overrides, passes every supported user-interface argument to
-		llama.cpp, and supports both streaming and non-streaming output.
+		model. The function applies the complete generation-parameter contract,
+		maintains shared generation lifecycle state, supports streamed and
+		non-streamed output, and preserves partial streamed output when cancellation
+		is requested.
 
 	Args:
 		prompt: Complete prompt submitted directly to the local model.
-		temperature: Sampling-temperature override supplied by the calling workflow.
-		top_p: Nucleus-sampling probability override supplied by the calling workflow.
-		repeat_penalty: Repetition-penalty override supplied by the calling workflow.
-		max_tokens: Maximum-output-token override supplied by the calling workflow.
+		temperature: Sampling-temperature override.
+		top_p: Nucleus-sampling probability override.
+		repeat_penalty: Repetition-penalty override.
+		max_tokens: Maximum-output-token override.
 		stream: Indicates whether response text should be streamed.
 		output: Optional Streamlit output container used during streaming.
 
 	Returns:
-		str: Generated model response text. An empty string is returned when the
-		prompt is empty, the model is unavailable, or no response text is produced.
+		str: Complete or partially generated response text. An empty string is
+		returned when the prompt or local model is unavailable.
 	"""
 	global llm
 	
@@ -2252,7 +2353,6 @@ def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_pena
 	
 	if llm is None:
 		st.error( f'Local model unavailable at {cfg.MODEL_PATH}' )
-		
 		return ''
 	
 	max_tokens_value: int = (
@@ -2284,56 +2384,73 @@ def run_model_prompt( prompt: str, temperature: float, top_p: float, repeat_pena
 		'frequency_penalty': frequency_penalty_value, 'presence_penalty': presence_penalty_value,
 		'repeat_penalty': repeat_penalty_value, 'seed': seed_value, 'stop': [ '</s>' ], }
 	
-	if not stream:
-		response: Dict[ str, Any ] = llm( stream=False, **request_arguments, )
-		
-		response_choices: Any = response.get( 'choices', [ ], )
-		
-		if (not isinstance( response_choices, list ) or len(
-			response_choices ) == 0 or not isinstance( response_choices[ 0 ], dict )):
-			return ''
-		
-		return str( response_choices[ 0 ].get( 'text', '', ) or '' ).strip( )
+	request_id: int = begin_generation( provider='local', )
 	
-	response_buffer: str = ''
+	final_status: str = 'completed'
 	
-	if output is None:
-		output = st.empty( )
+	try:
+		if not stream:
+			response: Dict[ str, Any ] = llm( stream=False, **request_arguments, )
+			
+			response_choices: Any = response.get( 'choices', [ ], )
+			
+			if (not isinstance( response_choices, list ) or len(
+				response_choices ) == 0 or not isinstance( response_choices[ 0 ], dict )):
+				return ''
+			
+			return str( response_choices[ 0 ].get( 'text', '', ) or '' ).strip( )
+		
+		response_buffer: str = ''
+		
+		if output is None:
+			output = st.empty( )
+		
+		response_stream: Any = llm( stream=True, **request_arguments, )
+		
+		for response_chunk in response_stream:
+			if generation_stop_requested( request_id=request_id, ):
+				final_status = 'stopped'
+				break
+			
+			if not isinstance( response_chunk, dict ):
+				continue
+			
+			chunk_choices: Any = response_chunk.get( 'choices', [ ], )
+			
+			if (not isinstance( chunk_choices, list ) or len(
+				chunk_choices ) == 0 or not isinstance( chunk_choices[ 0 ], dict )):
+				continue
+			
+			chunk_text: str = str( chunk_choices[ 0 ].get( 'text', '', ) or '' )
+			
+			if not chunk_text:
+				continue
+			
+			response_buffer += chunk_text
+			
+			output.markdown( response_buffer + '▌' )
+		
+		output.markdown( response_buffer )
+		
+		return response_buffer.strip( )
 	
-	response_stream: Any = llm( stream=True, **request_arguments, )
+	except Exception:
+		final_status = 'failed'
+		raise
 	
-	for response_chunk in response_stream:
-		if not isinstance( response_chunk, dict ):
-			continue
-		
-		chunk_choices: Any = response_chunk.get( 'choices', [ ], )
-		
-		if (not isinstance( chunk_choices, list ) or len( chunk_choices ) == 0 or not isinstance(
-			chunk_choices[ 0 ], dict )):
-			continue
-		
-		chunk_text: str = str( chunk_choices[ 0 ].get( 'text', '', ) or '' )
-		
-		if not chunk_text:
-			continue
-		
-		response_buffer += chunk_text
-		
-		output.markdown( response_buffer + '▌' )
-	
-	output.markdown( response_buffer )
-	
-	return response_buffer.strip( )
+	finally:
+		complete_generation( request_id=request_id, status=final_status, )
 
 def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_penalty: float,
-	max_tokens: int, stream: bool, output: Any | None = None, ) -> str:
+	max_tokens: int, stream: bool, output: Any | None = None, grounded: bool = False, ) -> str:
 	"""Execute one Text Generation model turn.
 
 	Purpose:
-		Validates the current user request, builds the complete Text Generation prompt,
-		resolves the authoritative generation-parameter contract, applies explicit
-		call-specific overrides, and submits the completed prompt to the raw local-model
-		executor.
+		Executes Text Generation through the local model by default. Google-grounded
+		Gemini generation is used only when the calling workflow explicitly requests
+		grounding and the required Gemini API key is configured. Grounding failures
+		fall back visibly to the local model so the application's core functionality
+		remains available without an external provider.
 
 	Args:
 		user_input: Current Text Generation user request.
@@ -2343,10 +2460,12 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 		max_tokens: Maximum-output-token override supplied by the calling workflow.
 		stream: Indicates whether response text should be streamed.
 		output: Optional Streamlit output container used during streaming.
+		grounded: Indicates whether the caller explicitly requests Gemini Google Search
+			grounding instead of ordinary local-model execution.
 
 	Returns:
-		str: Generated model response text. An empty string is returned when the user
-		request contains no usable text.
+		str: Generated response text. An empty string is returned when the user request
+		contains no usable text.
 	"""
 	user_input_value: str = str( user_input or '' ).strip( )
 	if not user_input_value:
@@ -2360,17 +2479,49 @@ def run_llm_turn( user_input: str, temperature: float, top_p: float, repeat_pena
 		float( top_p ) if top_p is not None else float( generation_parameters[ 'top_p' ] ))
 	
 	repeat_penalty_value: float = (float( repeat_penalty ) if repeat_penalty is not None else
-	                               float(
-		generation_parameters[ 'repeat_penalty' ] ))
+	                               float( generation_parameters[ 'repeat_penalty' ] ))
 	
 	max_tokens_value: int = (
 		int( max_tokens ) if max_tokens is not None and int( max_tokens ) > 0 else int(
 			generation_parameters[ 'max_tokens' ] ))
 	
+	if bool( grounded ):
+		if gemini_grounding_available( ):
+			try:
+				st.session_state[ 'generation_provider' ] = 'gemini'
+				st.session_state[ 'generation_status' ] = 'generating'
+				st.session_state[ 'gemini_grounding_error' ] = ''
+				
+				return run_grounded_gemini_turn( user_input=user_input_value, model=str(
+					st.session_state.get( 'gemini_grounding_model', 'gemini-2.5-flash-lite', ) ),
+					stream=bool( stream ), output=output, )
+			except Exception as ex:
+				st.session_state[ 'gemini_grounding_error' ] = str( ex )
+				st.session_state[ 'generation_provider' ] = 'local'
+				st.session_state[ 'generation_status' ] = 'local_fallback'
+				st.warning( 'Google grounding was unavailable. '
+				            'The request is being completed by the local model.' )
+		else:
+			st.session_state[ 'gemini_grounding_error' ] = ('GEMINI_API_KEY is not configured.')
+			st.session_state[ 'generation_provider' ] = 'local'
+			st.session_state[ 'generation_status' ] = 'local_fallback'
+			st.warning( 'Google grounding requires GEMINI_API_KEY. '
+			            'The request is being completed by the local model.' )
+	
+	st.session_state[ 'generation_provider' ] = 'local'
+	if st.session_state.get( 'generation_status' ) != 'local_fallback':
+		st.session_state[ 'generation_status' ] = 'generating'
+	
 	effective_prompt: str = build_prompt( user_input=user_input_value, )
-	return run_model_prompt( prompt=effective_prompt, temperature=temperature_value,
+	
+	response_text: str = run_model_prompt( prompt=effective_prompt, temperature=temperature_value,
 		top_p=top_p_value, repeat_penalty=repeat_penalty_value, max_tokens=max_tokens_value,
 		stream=bool( stream ), output=output, )
+	
+	if st.session_state.get( 'generation_status' ) != 'local_fallback':
+		st.session_state[ 'generation_status' ] = 'completed'
+	
+	return response_text
 
 def get_prompt_categories( ) -> List[ str ]:
 	"""
@@ -4624,6 +4775,92 @@ def toggle_text_generation_prompt_preview( ) -> None:
 	"""
 	st.session_state[ 'preview_effective_prompt' ] = not bool(
 		st.session_state.get( 'preview_effective_prompt', False, ) )
+
+# ----- Life-Cycle Utilities -----
+
+def begin_generation( provider: str = 'local', ) -> int:
+	"""Begin a model-generation request.
+
+	Purpose:
+		Initializes the shared generation lifecycle for a new request, clears any
+		previous cancellation request, records the active provider, and returns a
+		unique request identifier.
+
+	Args:
+		provider: Provider executing the generation request.
+
+	Returns:
+		int: Unique identifier assigned to the new generation request.
+	"""
+	request_id: int = int( st.session_state.get( 'generation_request_id', 0, ) ) + 1
+	
+	st.session_state[ 'generation_request_id' ] = request_id
+	st.session_state[ 'generation_active' ] = True
+	st.session_state[ 'generation_stop_requested' ] = False
+	st.session_state[ 'generation_provider' ] = str( provider or 'local' )
+	st.session_state[ 'generation_status' ] = 'generating'
+	
+	return request_id
+
+def request_generation_stop( ) -> None:
+	"""Request cancellation of the active generation operation.
+
+	Purpose:
+		Sets the shared cancellation flag read by cancellation-aware streaming
+		execution paths.
+
+	Args:
+		None.
+
+	Returns:
+		None: This function updates shared generation state.
+	"""
+	if bool( st.session_state.get( 'generation_active', False, ) ):
+		st.session_state[ 'generation_stop_requested' ] = True
+		st.session_state[ 'generation_status' ] = 'stopping'
+
+def generation_stop_requested( request_id: int, ) -> bool:
+	"""Determine whether an active generation request should stop.
+
+	Purpose:
+		Validates that the supplied request identifier is still current and returns
+		the shared cancellation state for that request.
+
+	Args:
+		request_id: Identifier assigned when the generation operation began.
+
+	Returns:
+		bool: True when the current request has been cancelled or superseded;
+		otherwise False.
+	"""
+	current_request_id: int = int( st.session_state.get( 'generation_request_id', 0, ) )
+	
+	if int( request_id ) != current_request_id:
+		return True
+	
+	return bool( st.session_state.get( 'generation_stop_requested', False, ) )
+
+def complete_generation( request_id: int, status: str = 'completed', ) -> None:
+	"""Complete a model-generation request.
+
+	Purpose:
+		Finalizes the shared generation lifecycle when the supplied request remains
+		the current active request.
+
+	Args:
+		request_id: Identifier assigned when the generation operation began.
+		status: Final lifecycle status assigned to the request.
+
+	Returns:
+		None: This function updates shared generation state.
+	"""
+	current_request_id: int = int( st.session_state.get( 'generation_request_id', 0, ) )
+	
+	if int( request_id ) != current_request_id:
+		return
+	
+	st.session_state[ 'generation_active' ] = False
+	st.session_state[ 'generation_status' ] = str( status or 'completed' )
 	
 # -------------- LLM  UTILITIES -------------------
 
@@ -4829,34 +5066,248 @@ if mode == 'Text Generation':
 				
 				# ----- Language -----
 				with code_c1:
-					st.selectbox( label='Language / Technology', options=CODING_LANGUAGE_OPTIONS,
-						key='coding_language',
+					st.selectbox( label='Language / Technology',
+						options=CODING_LANGUAGE_OPTIONS, key='coding_language',
 						help=('Select the programming language, markup language, or '
 						      'stylesheet technology for the coding task.'), )
 				
 				# ----- Task -----
 				with code_c2:
 					st.selectbox( label='Coding Task', options=CODING_TASK_OPTIONS,
-						key='coding_task', help='Select the type of coding assistance required.', )
+						key='coding_task',
+						help='Select the type of coding assistance required.', )
 				
 				# ----- Comment -----
 				with code_c3:
-					st.toggle( label='Include Comments', key='coding_include_comments',
+					st.toggle( label='Include Comments',
+						key='coding_include_comments',
 						help='Include useful documentation and implementation comments.', )
 				
 				# ----- Format -----
 				with code_c4:
-					st.toggle( label='Use Editor Format', key='coding_editor_format',
+					st.toggle( label='Use Editor Format',
+						key='coding_editor_format',
 						help='Return editor-ready source instead of pseudocode.', )
 				
 				# ----- Fencing -----
 				with code_c5:
-					st.toggle( label='Emit Fenced Code', key='coding_fenced_output',
+					st.toggle( label='Emit Fenced Code',
+						key='coding_fenced_output',
 						help='Wrap generated source in Markdown code fences.', )
 				
 				# ----- Reset -----
-				st.button( label='Reset', key='coding_controls_reset', width='stretch',
-					on_click=reset_coding_controls, icon='🔄' )
+				st.button( label='Reset', key='coding_controls_reset',
+					width='stretch', on_click=reset_coding_controls, icon='🔄', )
+			
+			# ----------------------------------------------------------------------------------
+			# Expander - Response Controls
+			# ----------------------------------------------------------------------------------
+			with st.expander( label='Response Controls', icon='↔️',
+					expanded=False, ):
+				if int( st.session_state.get( 'max_tokens', 0, ) or 0 ) <= 0:
+					st.session_state[ 'max_tokens' ] = 1024
+				
+				if float( st.session_state.get( 'top_percent', 0.0, ) or 0.0 ) <= 0.0:
+					st.session_state[ 'top_percent' ] = 0.95
+				
+				if int( st.session_state.get( 'top_k', 0, ) or 0 ) <= 0:
+					st.session_state[ 'top_k' ] = 40
+				
+				if float( st.session_state.get( 'repeat_penalty', 0.0, ) or 0.0 ) <= 0.0:
+					st.session_state[ 'repeat_penalty' ] = 1.1
+				
+				if int( st.session_state.get( 'repeat_window', 0, ) or 0 ) <= 0:
+					st.session_state[ 'repeat_window' ] = 64
+				
+				response_c1, response_c2, response_c3 = st.columns(
+					[ 0.33, 0.34, 0.33 ], border=True, gap='medium', )
+				
+				# ----- Temperature -----
+				with response_c1:
+					st.slider( label='Temperature', min_value=0.0,
+						max_value=2.0, step=0.01, key='temperature',
+						help=('Controls sampling variation. Lower values produce more '
+						      'stable responses; higher values increase variation.'), )
+				
+				# ----- Top-P -----
+				with response_c2:
+					st.slider( label='Top-P', min_value=0.0,
+						max_value=1.0, step=0.01, key='top_percent',
+						help=('Limits token selection to the smallest probability mass '
+						      'meeting the selected threshold.'), )
+				
+				# ----- Top-K -----
+				with response_c3:
+					st.number_input( label='Top-K', min_value=0,
+						max_value=1000, step=1, key='top_k',
+						help=('Limits sampling to the selected number of highest-probability '
+						      'tokens. Use zero only when supported by the model runtime.'), )
+				
+				response_c4, response_c5, response_c6 = st.columns(
+					[ 0.33, 0.34, 0.33 ], border=True, gap='medium', )
+				
+				# ----- Frequency Penalty -----
+				with response_c4:
+					st.slider( label='Frequency Penalty', min_value=-2.0,
+						max_value=2.0, step=0.01, key='frequency_penalty',
+						help=('Adjusts the likelihood of tokens according to how often '
+						      'they already appear in the generated response.'), )
+				
+				# ----- Presence Penalty -----
+				with response_c5:
+					st.slider( label='Presence Penalty', min_value=-2.0,
+						max_value=2.0, step=0.01, key='presence_penalty',
+						help=('Adjusts the likelihood of tokens according to whether '
+						      'they have already appeared.'), )
+				
+				# ----- Repeat Penalty -----
+				with response_c6:
+					st.slider( label='Repeat Penalty', min_value=0.0,
+						max_value=2.0, step=0.01, key='repeat_penalty',
+						help=('Penalizes repeated token sequences during local-model '
+						      'generation.'), )
+				
+				response_c7, response_c8, response_c9 = st.columns(
+					[ 0.33, 0.34, 0.33 ], border=True, gap='medium', )
+				
+				# ----- Repeat Window -----
+				with response_c7:
+					st.number_input( label='Repeat Window', min_value=0,
+						max_value=8192, step=1, key='repeat_window',
+						help=('Number of recent local-model tokens considered when '
+						      'applying repetition-related penalties.'), )
+				
+				# ----- Random Seed -----
+				with response_c8:
+					st.number_input( label='Random Seed', min_value=-1,
+						max_value=2147483647, step=1, key='random_seed',
+						help=('Controls repeatable local-model sampling. Use -1 for '
+						      'runtime-selected nondeterministic behavior.'), )
+				
+				# ----- Maximum Tokens -----
+				with response_c9:
+					st.number_input( label='Maximum Tokens', min_value=1,
+						max_value=32768, step=1, key='max_tokens',
+						help='Maximum number of tokens generated for one response.', )
+				
+				st.markdown( cfg.BLUE_DIVIDER, unsafe_allow_html=True, )
+				
+				grounding_c1, grounding_c2 = st.columns(
+					[ 0.5, 0.5 ], border=True, gap='medium', )
+				
+				# ----- Grounding -----
+				with grounding_c1:
+					st.toggle( label='Use Google Search Grounding',
+						key='is_grounded',
+						help=('Optionally route this Text Generation request through '
+						      'Gemini with Google Search. Local inference remains the '
+						      'default when this control is disabled.'), )
+				
+				# ----- Provider Status -----
+				with grounding_c2:
+					if bool( st.session_state.get( 'is_grounded', False, ) ):
+						if gemini_grounding_available( ):
+							st.success( 'Gemini grounding is configured.' )
+						else:
+							st.warning(
+								'GEMINI_API_KEY is not configured. The request will '
+								'use the local model.'
+							)
+					else:
+						st.info( 'Provider: Local' )
+				
+				if bool( st.session_state.get( 'is_grounded', False, ) ):
+					st.warning(
+						'Grounded requests are sent to an external Gemini service. '
+						'Do not submit sensitive, controlled, or private information.'
+					)
+					
+					grounding_model_options: List[ str ] = (
+						Chat( ).model_options
+						or [ 'gemini-2.5-flash-lite' ]
+					)
+					
+					current_grounding_model: str = str(
+						st.session_state.get(
+							'gemini_grounding_model',
+							'gemini-2.5-flash-lite',
+						)
+					).strip( )
+					
+					if current_grounding_model not in grounding_model_options:
+						st.session_state[ 'gemini_grounding_model' ] = (
+							grounding_model_options[ 0 ]
+						)
+					
+					st.selectbox( label='Grounding Model',
+						options=grounding_model_options,
+						key='gemini_grounding_model',
+						help=('Select the Gemini model used only when optional '
+						      'Google Search grounding is enabled.'), )
+				
+				# ----- Reset -----
+				if st.button( label='Reset', key='response_controls_reset',
+						width='stretch', icon='🔄', ):
+					st.session_state[ 'temperature' ] = 0.0
+					st.session_state[ 'top_percent' ] = 0.95
+					st.session_state[ 'top_k' ] = 40
+					st.session_state[ 'frequency_penalty' ] = 0.0
+					st.session_state[ 'presence_penalty' ] = 0.0
+					st.session_state[ 'repeat_penalty' ] = 1.1
+					st.session_state[ 'repeat_window' ] = 64
+					st.session_state[ 'random_seed' ] = -1
+					st.session_state[ 'max_tokens' ] = 1024
+					st.session_state[ 'is_grounded' ] = False
+					st.session_state[ 'gemini_grounding_model' ] = (
+						'gemini-2.5-flash-lite'
+					)
+					st.session_state[ 'gemini_grounding_error' ] = ''
+					st.rerun( )
+			
+			# ----------------------------------------------------------------------------------
+			# Expander - Inference Settings
+			# ----------------------------------------------------------------------------------
+			with st.expander( label='Inference Settings', icon='⚙️',
+					expanded=False, ):
+				if int( st.session_state.get( 'context_window', 0, ) or 0 ) <= 0:
+					st.session_state[ 'context_window' ] = int( cfg.DEFAULT_CTX )
+				
+				if int( st.session_state.get( 'cpu_threads', 0, ) or 0 ) <= 0:
+					st.session_state[ 'cpu_threads' ] = int( cfg.CORES )
+				
+				inference_c1, inference_c2, inference_c3 = st.columns(
+					[ 0.33, 0.34, 0.33 ], border=True, gap='medium', )
+				
+				# ----- Context Window -----
+				with inference_c1:
+					st.number_input( label='Context Window', min_value=512,
+						max_value=131072, step=512, key='context_window',
+						help=('Maximum local-model context size used when loading '
+						      'the configured GGUF model.'), )
+				
+				# ----- CPU Threads -----
+				with inference_c2:
+					st.number_input( label='CPU Threads', min_value=1,
+						max_value=max( 1, int( cfg.CORES ) * 2, ), step=1,
+						key='cpu_threads',
+						help=('Number of CPU threads used by the local llama.cpp '
+						      'inference runtime.'), )
+				
+				# ----- Local Model -----
+				with inference_c3:
+					if local_model_available( ):
+						st.success( 'Local model available' )
+					else:
+						st.error( 'Local model unavailable' )
+				
+				st.caption( f'Configured Model: {cfg.MODEL_PATH}' )
+				
+				# ----- Reset -----
+				if st.button( label='Reset', key='inference_settings_reset',
+						width='stretch', icon='🔄', ):
+					st.session_state[ 'context_window' ] = int( cfg.DEFAULT_CTX )
+					st.session_state[ 'cpu_threads' ] = int( cfg.CORES )
+					st.rerun( )
 				 
 		# ----------------------------------------------------------------------------------
 		# Expander - System Instructions

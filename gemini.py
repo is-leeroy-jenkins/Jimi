@@ -446,7 +446,6 @@ class Chat( Gemini ):
 			throw_if( 'model', model )
 			self.model_name = str( model ).strip( ).lower( )
 			self.options = [ 'google_search', 'url_context', 'file_search', 'code_execution' ]
-			
 			if self.supports_google_maps( self.model_name ):
 				self.options.append( 'google_maps' )
 			
