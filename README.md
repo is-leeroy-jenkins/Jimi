@@ -54,19 +54,7 @@ operations.
 * Databricks workspace repository for the Jimi codebase.
 * Supports collaborative development, analytics, notebook execution, and application deployment.
 
-## 🧠 Custom LLM
 
-[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
-
-Jimi is designed to run against a local GGUF model, commonly a Gemma-family or Llama-family model
-quantized for efficient local inference. The repository contains application code; the model should be
-stored separately and referenced through configuration.
-
-Example model name:
-
-```text
-Gemma-4-E4B-it.gguf
-```
 
 ## 🧰 Overview
 
@@ -136,11 +124,26 @@ The application is intentionally simple and durable:
 
 
 
-## 🧊 Local LLM
+## 🧠 Custom  LLM
 
-Jimi uses optional local LLM support. The model is loaded only when the configured GGUF file exists.
+- Jimi uses optional local LLM support.
+
+
+[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi)
+
+Jimi is designed to run against a local GGUF model, commonly a Gemma-family or Llama-family model
+quantized for efficient local inference. The repository contains application code; the model should be
+stored separately and referenced through configuration. The model is loaded only when the configured GGUF file exists.
 The `local_model_available()` function checks the configured model path before `llama_cpp.Llama` is
 imported and initialized.
+
+Example model name:
+
+```text
+Gemma-4-E4B-it.gguf
+```
+
+[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi) 
 
 The relevant configuration pattern is:
 
