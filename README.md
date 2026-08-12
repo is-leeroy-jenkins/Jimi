@@ -23,7 +23,7 @@
   &bull;
   <a href="#-capabilities">Capabilities</a> 
   &bull;
-  <a href="#-data-management">Data</a> 
+  <a href="#%EF%B8%8F-data-management)">Data</a> 
   &bull;
 </p>
 
