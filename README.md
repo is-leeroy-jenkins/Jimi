@@ -9,7 +9,7 @@
   &bull;
   <a href="#-application-modes">Modes</a> 
   &bull;
-  <a href="#-requirements">Requirements</a> 
+  <a href="https://github.com/is-leeroy-jenkins/Jimi/blob/main/requirements.txt">Requirements</a> 
   &bull;
   <a href="#-custom--llm">LLM</a> 
   &bull;
