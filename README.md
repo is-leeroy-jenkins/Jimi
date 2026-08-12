@@ -11,7 +11,7 @@
   &bull;
   <a href="#-requirements">Requirements</a> 
   &bull;
-  <a href="#-local-llm">LLM</a> 
+  <a href="#-custom--llm">LLM</a> 
   &bull;
   <a href="#-installation">Installation</a> 
   &bull;
