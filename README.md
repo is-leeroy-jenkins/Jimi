@@ -48,6 +48,7 @@ operations.
 
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Launch%20App-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ai.studio/apps/bc9c0ac6-8f98-4a30-ac69-2ac83aa0d81f)
 
+
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
 ## 🧱 Databricks
