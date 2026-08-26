@@ -53,7 +53,7 @@ operations.
 [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://leeroy.streamlit.app/)
 
 #### 🧱 Databricks
-[![Jimi](https://img.shields.io/badge/Databricks-Jimi-FF3621?logo=databricks\&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
+[![Jimi](https://img.shields.io/badge/Databricks-Repo-FF3621?logo=databricks\&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
 
 #### ☁️ Google Cloud
 [![Gemini](https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white)](https://jimi-py.ai.studio)
