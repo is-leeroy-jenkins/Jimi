@@ -46,21 +46,21 @@ operations.
 ## 🎥 Cloud Demos
 
 
-### 🧊 Azure
+#### 🧊 Azure
 
 - Container App
 
 [![Containerized](https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io)
 
 
-### 🧱 Databricks
+#### 🧱 Databricks
 
 * Databricks workspace repository for the Jimi codebase.
 * Supports collaborative development, analytics, notebook execution, and application deployment.
 
 [![Jimi](https://img.shields.io/badge/Databricks-Jimi-FF3621?logo=databricks\&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
 
-### ☁️ Google Cloud
+#### ☁️ Google Cloud
 
 - Jimi on Gemini
 
