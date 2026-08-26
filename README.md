@@ -48,23 +48,19 @@ operations.
 
 #### 🧊 Azure
 
-- Container App
 
 [![Containerized](https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io)
 
 
 #### 🧱 Databricks
 
-* Databricks workspace repository for the Jimi codebase.
-* Supports collaborative development, analytics, notebook execution, and application deployment.
 
 [![Jimi](https://img.shields.io/badge/Databricks-Jimi-FF3621?logo=databricks\&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
 
 #### ☁️ Google Cloud
 
-- Jimi on Gemini
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Launch%20App-blue?style=for-the-badge&logo=googlechrome&logoColor=white)](https://ai.studio/apps/bc9c0ac6-8f98-4a30-ac69-2ac83aa0d81f)
+[![Gemini](https://img.shields.io/badge/Google%20Cloud-Launch%20Gemini%20App-4285F4?logo=googlegemini&logoColor=white)](https://jimi-py.ai.studio)
 
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
