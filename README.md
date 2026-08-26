@@ -154,8 +154,6 @@ Example model name:
 Gemma-4-E4B-it.gguf
 ```
 
-[![HuggingFace](https://huggingface.co/datasets/huggingface/badges/resolve/main/model-on-hf-sm.svg)](https://huggingface.co/leeroy-jankins/jimi) 
-
 The relevant configuration pattern is:
 
 ```python
