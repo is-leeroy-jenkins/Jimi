@@ -43,10 +43,18 @@ Jimi uses an optional local GGUF model through `llama.cpp`, supports document re
 interface for text generation, document Q&A, semantic indexing, prompt administration, and database
 operations.
 
-## 🎥 Demo
+## 🎥 Cloud Demos
+
+
+### 🧊 Azure
+
+- Container App
+
+[![Containerized](https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io)
 
 
 ### 🧱 Databricks
+
 * Databricks workspace repository for the Jimi codebase.
 * Supports collaborative development, analytics, notebook execution, and application deployment.
 
