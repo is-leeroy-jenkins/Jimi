@@ -42,6 +42,7 @@ Jimi uses an optional local GGUF model through `llama.cpp`, supports document re
 interface for text generation, document Q&A, semantic indexing, prompt administration, and database
 operations.
 
+![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
 <h2>🎥 Cloud Demos</h2>
 
@@ -59,12 +60,6 @@ operations.
 <td align="center"><a href="https://jimi-py.ai.studio"><img src="https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white" alt="Gemini Launch App"></a></td>
 </tr>
 </table>
-
-___ 
-
-![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
-
-
 
 
 ## 🧰 Overview
