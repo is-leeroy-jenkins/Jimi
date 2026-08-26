@@ -44,9 +44,36 @@ operations.
 
 ## 🎥 Cloud Demos
 
-| 🧊 Azure | 🔥 Streamlit | 🧱 Databricks | ☁️ Google Cloud |
-|---|---|---|---|
-| [![Containerized](https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io) | [![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://leeroy.streamlit.app/) | [![Jimi](https://img.shields.io/badge/Databricks-Repo-FF3621?logo=databricks&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351) | [![Gemini](https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white)](https://jimi-py.ai.studio) |
+<table width="100%">
+  <tr>
+    <th width="25%">🧊 Azure</th>
+    <th width="25%">🔥 Streamlit</th>
+    <th width="25%">🧱 Databricks</th>
+    <th width="25%">☁️ Google Cloud</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io">
+        <img src="https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white" alt="Containerized">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://leeroy.streamlit.app/">
+        <img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit App">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351">
+        <img src="https://img.shields.io/badge/Databricks-Repo-FF3621?logo=databricks&logoColor=white" alt="Databricks">
+      </a>
+    </td>
+    <td align="center">
+      <a href="https://jimi-py.ai.studio">
+        <img src="https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white" alt="Gemini">
+      </a>
+    </td>
+  </tr>
+</table>
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
