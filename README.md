@@ -60,6 +60,8 @@ operations.
 </tr>
 </table>
 
+___ 
+
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
 
