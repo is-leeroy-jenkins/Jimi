@@ -29,8 +29,6 @@
 
 ___
 
-[![Documentation](https://img.shields.io/badge/Documentation-Website-2EA44F?logo=readthedocs&logoColor=white)](https://is-leeroy-jenkins.github.io/Jimi/)
-
 Jimi is a Python and Streamlit application for local language-model inference,
 retrieval-augmented generation, semantic search, prompt engineering, and SQLite-backed data
 management. It is designed for federal analysts, technical users, and data-science workflows that
@@ -41,6 +39,8 @@ Jimi uses an optional local GGUF model through `llama.cpp`, supports document re
 `sentence-transformers`, persists chat history and prompts in SQLite, and provides a Streamlit user
 interface for text generation, document Q&A, semantic indexing, prompt administration, and database
 operations.
+
+[![Documentation](https://img.shields.io/badge/Documentation-Website-2EA44F?logo=readthedocs&logoColor=white)](https://is-leeroy-jenkins.github.io/Jimi/)
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
