@@ -47,10 +47,10 @@ operations.
 
 
 #### 🧊 Azure
-[![Containerized](https://img.shields.io/badge/Docker-Launch-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io)
+[![Containerized](https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io)
 
 #### 🔥 Streamlit
-[![Streamlit App](https://img.shields.io/badge/Streamlit-Launch-App-FF4B4B?logo=streamlit&logoColor=white)](https://leeroy.streamlit.app/)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://leeroy.streamlit.app/)
 
 #### 🧱 Databricks
 [![Jimi](https://img.shields.io/badge/Databricks-Repo-FF3621?logo=databricks\&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
