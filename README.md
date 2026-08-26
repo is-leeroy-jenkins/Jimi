@@ -46,50 +46,18 @@ operations.
 <h2>🎥 Cloud Demos</h2>
 
 <table>
-  <tr>
-    <th align="center">
-      <img width="180" height="1" alt="">
-      <br>🧊 Azure
-    </th>
-    <th align="center">
-      <img width="180" height="1" alt="">
-      <br>🔥 Streamlit
-    </th>
-    <th align="center">
-      <img width="180" height="1" alt="">
-      <br>📦 Databricks
-    </th>
-    <th align="center">
-      <img width="180" height="1" alt="">
-      <br>☁️ Google Cloud
-    </th>
-  </tr>
-
-  <tr>
-    <td align="center">
-      <a href="https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io">
-        <img src="https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white" alt="Docker App">
-      </a>
-    </td>
-
-    <td align="center">
-      <a href="https://leeroy.streamlit.app/">
-        <img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit App">
-      </a>
-    </td>
-
-    <td align="center">
-      <a href="https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351">
-        <img src="https://img.shields.io/badge/Databricks-Repo-FF3621?logo=databricks&logoColor=white" alt="Databricks Repo">
-      </a>
-    </td>
-
-    <td align="center">
-      <a href="https://jimi-py.ai.studio">
-        <img src="https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white" alt="Gemini Launch App">
-      </a>
-    </td>
-  </tr>
+<tr>
+<th align="center"><img width="190" height="1" alt=""><br>🧊 Azure</th>
+<th align="center"><img width="190" height="1" alt=""><br>🔥 Streamlit</th>
+<th align="center"><img width="190" height="1" alt=""><br>📦 Databricks</th>
+<th align="center"><img width="190" height="1" alt=""><br>☁️ Google Cloud</th>
+</tr>
+<tr>
+<td align="center"><a href="https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io"><img src="https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white" alt="Docker App"></a></td>
+<td align="center"><a href="https://leeroy.streamlit.app/"><img src="https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white" alt="Streamlit App"></a></td>
+<td align="center"><a href="https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351"><img src="https://img.shields.io/badge/Databricks-Repo-FF3621?logo=databricks&logoColor=white" alt="Databricks Repo"></a></td>
+<td align="center"><a href="https://jimi-py.ai.studio"><img src="https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white" alt="Gemini Launch App"></a></td>
+</tr>
 </table>
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
