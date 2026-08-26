@@ -47,21 +47,16 @@ operations.
 
 
 #### 🧊 Azure
-
-
 [![Containerized](https://img.shields.io/badge/Docker-App-2496ED?logo=docker&logoColor=white)](https://jimi.wittypebble-df6fd35a.centralus.azurecontainerapps.io)
 
+#### 🔥 Streamlit
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B?logo=streamlit&logoColor=white)](https://leeroy.streamlit.app/)
 
 #### 🧱 Databricks
-
-
 [![Jimi](https://img.shields.io/badge/Databricks-Jimi-FF3621?logo=databricks\&logoColor=white)](https://dbc-a0c21f80-7bb3.cloud.databricks.com/browse/folders/254131913339635?o=7474645703081351)
 
 #### ☁️ Google Cloud
-
-
 [![Gemini](https://img.shields.io/badge/Google%20Cloud-Launch%20Gemini%20App-4285F4?logo=googlegemini&logoColor=white)](https://jimi-py.ai.studio)
-
 
 ![](https://github.com/is-leeroy-jenkins/Jimi/blob/main/resources/images/Jimi-functionality.gif)
 
