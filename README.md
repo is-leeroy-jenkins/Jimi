@@ -77,14 +77,14 @@ ___
 <td align="center">
 <img width="190" height="1" alt=""><br>
 <a href="<LINK>">
-<img src="https://img.shields.io/badge/Gemini-Launch%20App-4285F4?logo=googlegemini&logoColor=white" alt="Databricks Notebook">
+<img src="https://img.shields.io/badge/Gemini-App-4285F4?logo=googlegemini&logoColor=white" alt="Gemini App">
 </a>
 </td>
 
 <td align="center">
 <a href="https://leeroy.usw-16.palantirfoundry.com/shares/links/dwfekkfakbgr6">
 <img width="190" height="1" alt=""><br>
-<img src="https://img.shields.io/badge/Palantir%20Foundry-Repository-101113?logo=palantir&logoColor=white" alt="Palantir Repo">
+<img src="https://img.shields.io/badge/Palantir%20Foundry-Repo-101113?logo=palantir&logoColor=white" alt="Palantir Repo">
 </a>
 </td>
 </tr>
